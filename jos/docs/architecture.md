@@ -1,5 +1,10 @@
 # JOS Architecture
 
+> **Superseded in part.** The default JOS is now the stock FOS userland on the Canonical-signed kernel
+> (`build/build-from-fos.sh`); see `docs/JOG-JOS-RESEARCH.md` §3. Everything below describing the
+> `initrd/scripts/jos-*.sh` REST client is the legacy implementation. The Secure Boot chain and the
+> `modules.img` section still apply to both.
+
 JOS is a Secure Boot–compatible PXE micro‑OS (initramfs-centric “appliance”, typically entirely from RAM).
 
 ## Boot flow (canonical)

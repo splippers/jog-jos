@@ -9,6 +9,12 @@ Audience: Sysadmins / IT Operations
 
 OVERVIEW
 
+> **Current design (2026-10-25):** JOS is the unmodified FOS userland running under the Canonical-signed
+> kernel, built by `build/build-from-fos.sh`. FOS's own scripts speak the FOG protocol (`web=` +
+> `boottype=usb`, then `hostgetkey.php` / `hostinfo.php`), so no FOG API tokens or custom client code are
+> involved. The shell implementation described below (`initrd/`, REST API based) is **legacy** and kept only
+> for reference until the FOS-based path is proven on hardware.
+
 JOS is a modern, Ubuntu-based replacement for FOG’s legacy FOS imaging environment, designed specifically for contemporary UEFI and Secure Boot deployments.
 
 It provides a zero-touch, API-driven imaging runtime that integrates cleanly with existing FOG infrastructure while addressing long-standing pain points in PXE booting, automation, and operational safety.

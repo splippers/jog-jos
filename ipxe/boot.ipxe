@@ -10,4 +10,11 @@ set base http://${next-server}
 echo NEXT SERVER: ${next-server}
 echo Booting JOS from: ${base}
 
-# These paths are placeholders: serve your signed kernel/initrd he
+# These paths are placeholders: serve your signed kernel/initrd here.
+# Example:
+#   ${base}/jos/vmlinuz
+#   ${base}/jos/initrd.img
+kernel ${base}/jos/vmlinuz ip=dhcp rd.shell=0 quiet
+initrd ${base}/jos/initrd.img
+boot
+

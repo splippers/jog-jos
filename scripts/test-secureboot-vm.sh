@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-# Boot the staged chain in QEMU with Secure Boot enforcing (Microsoft keys) and check JOS reaches /init.
+# Boot the staged chain in QEMU with Secure Boot enforcing (Microsoft keys) and check JOS (FOS or legacy userland) boots.
 # Also runs an unsigned-bootloader control, which must be rejected. Needs: qemu-system-x86_64 ovmf sbsigntool.
 # Usage: test-secureboot-vm.sh <tftp-root>      (stage it first with JOG_TFTP_ROOT=<dir> jog-stage-jos-boot.sh)
 T="$(realpath "${1:?tftp root}")"; W="$(mktemp -d)"; trap 'rm -rf "$W"' EXIT
@@ -16,7 +16,7 @@ run() { # bootfile logfile timeout
 clean() { sed 's/\x1b\[[0-9;?=]*[a-zA-Z]//g' "$1" | tr -d '\r'; }
 rc=0
 run ubuntu-signed/shimx64.efi "$W/pos.log" 60
-if clean "$W/pos.log" | grep -aq 'INIT: Starting FOG task runner'; then echo "PASS signed chain reached JOS /init under Secure Boot"; else echo "FAIL signed chain did not reach JOS"; rc=1; fi
+if clean "$W/pos.log" | grep -aqE 'INIT: Starting FOG task runner|Starting udevd'; then echo "PASS signed chain reached JOS /init under Secure Boot"; else echo "FAIL signed chain did not reach JOS"; rc=1; fi
 cp /usr/lib/grub/x86_64-efi/monolithic/grubnetx64.efi "$W/unsigned.efi" 2>/dev/null && ln -s "$W/unsigned.efi" "$T/unsigned.efi.test" 2>/dev/null || true
 run unsigned.efi.test "$W/neg.log" 25; rm -f "$T/unsigned.efi.test"
 if clean "$W/neg.log" | grep -aq 'Access Denied'; then echo "PASS unsigned bootloader rejected"; else echo "FAIL control: unsigned bootloader was not rejected (is Secure Boot enforcing?)"; rc=1; fi

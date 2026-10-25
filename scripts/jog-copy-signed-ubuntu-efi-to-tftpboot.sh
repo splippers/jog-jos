@@ -81,17 +81,4 @@ install -m 0644 "$GRUB" "$DEST/EFI/ubuntu/grubx64.efi"
 
 MAN="$DEST/README.txt"
 {
-  echo "Signed Ubuntu UEFI binaries staged by jog-copy-signed-ubuntu-efi-to-tftpboot.sh"
-  echo "Time: $(date -Iseconds)"
-  echo ""
-  echo "Sources:"
-  echo "  shim: $SHIM"
-  echo "  grub: $GRUB"
-  [[ -n "$NETGRUB" ]] && echo "  grubnet: $NETGRUB"
-  echo ""
-  echo "Flat TFTP paths (relative to tftpboot root): ubuntu-signed/shimx64.efi"
-  echo "Optionally set JOG_DHCP_BOOTFILE=ubuntu-signed/shimx64.efi and run jog-render-dnsmasq.sh"
-} >"$MAN"
-
-log "staged signed EFI under $DEST"
-ls -la "$DEST"
+  echo "Signed Ubuntu UEFI binaries staged by jog-copy-signed-ubuntu
