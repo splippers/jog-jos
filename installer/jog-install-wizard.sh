@@ -159,7 +159,7 @@ JOG_DHCP_NETMASK=${NETMASK}
 JOG_DHCP_LEASE_HOURS=12
 JOG_DHCP_ROUTER=${ROUTER}
 JOG_NEXT_SERVER=${NEXT_SERVER}
-JOG_DHCP_BOOTFILE=snponly.efi
+JOG_DHCP_BOOTFILE=ubuntu-signed/shimx64.efi
 JOG_FOG_URL=http://localhost/fog/management/
 JOG_FOG_TASKS_URL=
 JOG_STATUS_URL=file:///var/lib/jog/status/index.html
@@ -218,4 +218,4 @@ Next steps:
   1) Review /etc/netplan/ — add WiFi with low route-metric if not already configured.
   2) Reboot if you changed hostname or netplan (FOG keeps running after reboot).
 
-Cluster: read docs/CLUSTER.md and run scripts/jog-sync-images-from-primary.sh on edge nodes." 24 72
+Cluster: read docs/CLUSTER.md and run scripts/jog-sync-images-from-primary.sh on edge 

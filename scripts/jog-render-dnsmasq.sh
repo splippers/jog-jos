@@ -44,7 +44,7 @@ dhcp-option=option:dns-server,${JOG_NEXT_SERVER}
 # NEXT SERVER + PXE boot file — TFTP is served by FOG (tftpd-hpa from /opt/fog install), not dnsmasq,
 # so UDP/69 is not double-bound. Override filename for BIOS vs UEFI if needed.
 dhcp-option=option:tftp-server,${JOG_NEXT_SERVER}
-dhcp-boot=${JOG_DHCP_BOOTFILE:-snponly.efi},${JOG_NEXT_SERVER}
+dhcp-boot=${JOG_DHCP_BOOTFILE:-ubuntu-signed/shimx64.efi},${JOG_NEXT_SERVER}
 EOF
 
 log "Wrote $OUT (interface=${JOG_USB_IFACE})"

@@ -9,14 +9,10 @@ exec 2>>/tmp/jog_error.log
 
 log() { echo "[jog-copy-signed-efi] $*"; }
 
-[[ "$(id -u)" -eq 0 ]] || {
-  echo "Run as root: sudo $0" >&2
-  exit 1
-}
-
 ensure_pkg() {
   local p="$1"
   if ! dpkg -s "$p" >/dev/null 2>&1; then
+    [[ "$(id -u)" -eq 0 ]] || { echo "Run as root to install $p: sudo $0" >&2; exit 1; }
     log "installing package: $p"
     DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$p"
   fi
@@ -69,8 +65,16 @@ done < <(dpkg -L grub-efi-amd64-signed 2>/dev/null)
 }
 
 install -m 0644 "$SHIM" "$DEST/shimx64.efi"
-install -m 0644 "$GRUB" "$DEST/grubx64.efi"
-[[ -n "$NETGRUB" ]] && install -m 0644 "$NETGRUB" "$DEST/grubnetx64.efi"
+# shim loads "grubx64.efi" from the directory it was fetched from. Over the network that must be the
+# net-capable build (grubnetx64: prefix is tftp /grub, so it reads grub/grub.cfg from the TFTP root);
+# the on-disk grubx64 has no network prefix and would drop to a prompt.
+if [[ -n "$NETGRUB" ]]; then
+  install -m 0644 "$NETGRUB" "$DEST/grubx64.efi"
+  install -m 0644 "$NETGRUB" "$DEST/grubnetx64.efi"
+else
+  log "grubnetx64.efi.signed not found; PXE GRUB will not find grub.cfg"
+  install -m 0644 "$GRUB" "$DEST/grubx64.efi"
+fi
 
 install -m 0644 "$SHIM" "$DEST/EFI/Boot/bootx64.efi"
 install -m 0644 "$GRUB" "$DEST/EFI/ubuntu/grubx64.efi"

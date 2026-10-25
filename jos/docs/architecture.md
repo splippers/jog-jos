@@ -4,11 +4,13 @@ JOS is a Secure Boot–compatible PXE micro‑OS (initramfs-centric “appliance
 
 ## Boot flow (canonical)
 
-`iPXE → shimx64.efi → GRUB → signed Ubuntu kernel → JOS initramfs → /init → JOS runtime`
+`firmware PXE → shimx64.efi → grubnetx64 (as grubx64.efi) → signed Ubuntu kernel → JOS initramfs → /init → JOS runtime`
 
 Immutable for Secure Boot: **shim**, **GRUB**, **signed kernel**. Only the **initramfs** is project-built.
 
-See also: `config/ipxe/jos.ipxe.example` for an iPXE→shim chain example.
+iPXE cannot be the first stage with Secure Boot on (unsigned). `config/ipxe/jos.ipxe.example` is for Secure Boot-off machines only. Staging: `scripts/jog-stage-jos-boot.sh`; check: `scripts/jog-doctor.sh`; VM test with enforcing Secure Boot: `scripts/test-secureboot-vm.sh`.
+
+**Second initrd.** GRUB loads `jos/initrd.img` (unsigned, project-built) plus `jos/modules.img` (signed modules from the same kernel package as `vmlinuz`). Under lockdown the kernel rejects unsigned modules, so the JOS build must never ship its own. `jos-modules.sh` loads them at boot.
 
 ## Core components (initramfs)
 
