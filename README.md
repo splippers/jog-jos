@@ -16,6 +16,8 @@ It exposes DHCP, TFTP, and PXE services exclusively on a dedicated USB Ethernet 
 
 JOG is commonly paired with JOS clients for zero‑touch imaging workflows.
 
+This repo now also contains JOS (the client runtime) under `jos/`. Consolidated research, Secure Boot findings and the roll-out plan: `docs/JOG-JOS-RESEARCH.md`.
+
 ==================================================
 
 WHY JOG EXISTS
