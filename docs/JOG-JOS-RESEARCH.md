@@ -53,15 +53,36 @@ This removes the open design item from the previous round (how to get FOG tokens
 
 FOS maintainers describe this exact pattern (Canonical shim + Ubuntu kernel + unsigned network initrd, as in `abotzung/foguefi`) as a "precedent not to follow" **for FOG itself**, because a signed kernel handing control to a network-supplied initrd is close to what shim exists to prevent. Their own Secure Boot route is a FOG-signed kernel whose key each machine must trust (MOK enrolment, or Dell Command | Configure / iDRAC pushing keys into `db`), with a Microsoft-signed FOG shim as a multi-month long shot. For JOS the trade is deliberate: an isolated imaging network under your control, Ubuntu's kernel enforcing lockdown (so the initrd cannot patch the running kernel), and **no per-machine enrolment**. The fallback if you ever want FOS's own model on the Dell fleet is DCC-enrolling FOG's key; it needs a firmware visit per machine.
 
+### Tested against a real FOG server (2026-10-26)
+
+FOG **1.5.10.2518** (`stable` branch; 1.6.0-RC-17 exists but is a release candidate) installed natively on this workstation with `install/fog-native-install.sh`: source in `/opt/fogproject`, FOG in `/opt/fog`, bound to a bridge `jog0` (10.99.0.1/24). JOG's own `jog-render-dnsmasq.sh` provided DHCP; FOG's tftpd served the staged chain. A QEMU/OVMF VM with **Secure Boot enforcing** (Microsoft keys) PXE-booted it:
+
+| Step | Result |
+|------|--------|
+| PXE → shim → grubnet → Canonical-signed kernel → FOS userland | works; udev loads the NIC from `modules.img` |
+| `hostgetkey.php` / `hostinfo.php` / checkin | works, FOS receives the task from FOG |
+| **Capture** (type 2) of a 2 GB GPT/ext4 disk (resizable, zstd) | works: shrink, partclone.extfs, image to `/images/jostest` (21 MB), layout restored, FOG task marked complete |
+| **Deploy** (type 1) onto a blank 2 GB disk | works: GPT restored, partition expanded, partclone restore, FOG task complete |
+| Integrity | `sha256sum -c` of the 20 MB random file and a text file on the deployed disk: both OK |
+
+Not covered: Windows/NTFS images, multicast, real Dell hardware, VMD/NVMe, snapins, 4Kn disks.
+
+### Problems found and fixed in JOG along the way
+
+1. **`fog-native-install.sh` cloned FOG into `/opt/fog`**, the directory the installer copies itself into, so it died with "same file" errors and left a damaged tree. It now clones to `/opt/fogproject`.
+2. **The FOG installer opens its ports to Anywhere in ufw** (80, 443, 69, 21, 2049, 111, 20048). On a laptop on a real LAN that exposes NFS, FTP and the web UI. The script now removes those rules and allows them on the imaging NIC only. The allow rules must be **inserted at the top** (`ufw insert 1`): this host had an older `111 DENY Anywhere` above them and NFS silently timed out.
+3. **Shim fetches `grubx64.efi` from the TFTP root**, not from the `ubuntu-signed/` sub-directory, when the boot file comes from a real DHCP server (it worked with QEMU's built-in one). `jog-stage-jos-boot.sh` now serves the pair from both places.
+4. `resolvectl dns` parsing returned the interface index ("3") as the DNS server; now matches an IPv4 address.
+5. **FOS silently skips the restore when an image's `format` is empty.** `writeImage` has no branch for it, so a deploy "succeeds" (task complete) with nothing written. Images created through the FOG API must set `format` (5 = zstd). Images made in the web UI get it automatically. Worth a guard in any tooling that creates images.
+
 ### Remaining work
 
-1. **Live FOG test:** point the VM at a real JOG, register a host and run a small unicast deploy through `fog.download`. Then capture.
-2. **One physical Dell** with Secure Boot on and a USB3 NIC: confirm udev loads the driver from `modules.img` and the disk is seen (VMD on and off).
-3. **Microsoft 2023 CA:** FOS ADR 0019 documents Dell OptiPlex failures after the Windows db update, so test deployed targets still boot Windows with Secure Boot on. FOS ships the CA certs for this.
-4. **Kernel upgrades:** `modules.img` is pinned to the staged kernel. Restage after updates; `jog-doctor.sh` flags a mismatch.
-5. **Retire the legacy shell client** (`jos/initrd/scripts/jos-*.sh`) once 1–2 pass.
-6. **Licence:** FOS is GPL-3. The built initrd contains it, so it is gitignored and not distributed from this repo; if JOG images ever ship it, comply with GPL source offers.
-7. **Pilot:** one JOG per imaging table (`docs/CLUSTER.md`, pattern 1).
+1. **One physical Dell** with Secure Boot on and a USB3 NIC: confirm udev loads the driver from `modules.img` and the disk is seen (VMD on and off).
+2. **A Windows image** capture and deploy, then confirm the deployed Windows still boots with Secure Boot on (FOS ADR 0019: Microsoft 2023 CA db update on Dell OptiPlex).
+3. **Kernel upgrades:** `modules.img` is pinned to the staged kernel. Restage after updates; `jog-doctor.sh` flags a mismatch.
+4. **Retire the legacy shell client** (`jos/initrd/scripts/jos-*.sh`).
+5. **Licence:** FOS is GPL-3. The built initrd contains it, so it is gitignored and not distributed from this repo.
+6. **Pilot:** one JOG per imaging table (`docs/CLUSTER.md`, pattern 1).
 
 ## 5. Decisions made
 

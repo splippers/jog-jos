@@ -76,6 +76,12 @@ install -m 0644 "$KERNEL" "$TFTP/jos/vmlinuz"
 install -m 0644 "$INITRD" "$TFTP/jos/initrd.img"
 install -m 0644 "$W/modules.img" "$TFTP/jos/modules.img"
 echo "$KVER" >"$TFTP/jos/kver"
+# Shim derives the directory it fetches grubx64.efi from out of what the DHCP server sent as the boot file, and
+# real DHCP servers (dnsmasq/FOG's TFTP) do not always carry the sub-directory through. Serve the pair from both
+# the sub-directory and the TFTP root so either lookup succeeds.
+for f in shimx64.efi grubx64.efi; do
+  [[ -f "$TFTP/ubuntu-signed/$f" ]] && install -m 0644 "$TFTP/ubuntu-signed/$f" "$TFTP/$f"
+done
 
 [[ -f /etc/jog/jog.env ]] && { set -a; source /etc/jog/jog.env; set +a; }
 WEB="${JOS_FOG_WEB:-http://${JOG_NEXT_SERVER:-10.99.0.1}/fog/}"
