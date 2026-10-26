@@ -1,4 +1,6 @@
-# JOG + JOS — consolidated research (the future of FOG imaging)
+# JOS research — a drop-in, Secure Boot-compatible replacement for FOS
+
+**Scope (decided 2026-10-26):** JOS replaces FOS only; FOG is used as upstream ships it. JOG is not a FOG replacement and is not being developed as one; it survives as an optional helper for running stock FOG on an isolated laptop. Success criterion: JOS does everything FOS does, so FOG cannot tell the difference.
 
 Merged 2026-10-25 from: `JOG` (server appliance), `JOS` (client runtime, formerly the `jos-client` submodule and a separate `jos` repo), plus references in `fog-ambulance`, `JONOTRON_CONTEXT.md` and `craic/`.
 
@@ -84,10 +86,24 @@ Not covered: Windows/NTFS images, multicast, real Dell hardware, VMD/NVMe, snapi
 5. **Licence:** FOS is GPL-3. The built initrd contains it, so it is gitignored and not distributed from this repo.
 6. **Pilot:** one JOG per imaging table (`docs/CLUSTER.md`, pattern 1).
 
+## 4b. What "replaces FOS flawlessly" needs
+
+FOS has two halves, and only one of them is ours:
+
+- **Userland** (`fog.*` scripts, partclone, udpcast, resize/LVM/4Kn logic): identical, because JOS runs FOS's own userland. Bump `FOS_TAG` to track upstream fixes; re-run the VM test after each bump.
+- **Kernel and boot menu**, where JOS differs and parity must be earned:
+  1. **Drivers.** FOS builds its drivers into its own kernel (plus out-of-tree Realtek). JOS gets only what `modules.img` carries (28 modules today). For flawless parity, ship every network, storage, USB and Thunderbolt module, or hardware that FOS images will fail on JOS. Needs a Dell hardware matrix test.
+  2. **Boot menu.** FOG's iPXE menu (registration, inventory, debug, etc.) does not exist under Secure Boot, so `jog-stage-jos-boot.sh` now emits GRUB entries mirroring the stock FOS USB image: deploy/capture, full registration (`mode=manreg`), quick registration (`mode=autoreg`), system info, debug. Not yet exercised against FOG.
+  3. **Unregistered hosts.** Entry 1 on an unknown machine errors ("Invalid Host") exactly as the FOS USB image does; the technician must pick registration. Decide whether JOS should do better than FOS here.
+  4. **Not supported under Secure Boot:** memtest and iPXE jumpstart (unsigned binaries), FOG's PXE menu timeout/hidden-menu behaviour, per-host PXE menu overrides (they are iPXE).
+  5. **Kernel security model.** Ubuntu's kernel enforces lockdown under Secure Boot; FOS's does not yet (FOS ADR 0010). Check no `fog.*` script needs `/dev/mem`, `iopl` or `kexec` (inventory via `dmidecode` already uses sysfs).
+  6. **Parity test suite.** Run the same deploy/capture/multicast/registration/wipe cases on FOS and JOS and compare. Today only unicast capture and deploy of one ext4 disk have been run.
+
 ## 5. Decisions made
 
 - Fleet is pure Dell; no other vendors' firmware quirks are in scope.
 - WENDY/CLINIC (LLM diagnosis gate) was a joke and is excluded from this repo.
+- JOS replaces FOS only, FOG stays upstream, and JOG is just an optional helper (Jon, 2026-10-26: "it doesn't make sense to reinvent that particular wheel").
 - JOS reuses FOS userland rather than reimplementing the FOG client (Jon: "don't reinvent the wheel").
 - JOS lives in `jos/`; the standalone `splippers/JOS` repo is superseded once this branch is pushed.
 

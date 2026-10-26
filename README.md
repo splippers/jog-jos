@@ -1,4 +1,32 @@
-# JOG — Jonathan’s OpenSource Ghost
+# JOS — a Secure Boot-compatible replacement for FOS
+
+Type: Infrastructure | Intent: Pillar | Audience: Sysadmins
+
+**JOS** replaces **FOS**, the client environment FOG PXE-boots to image machines. It does not replace FOG:
+the FOG server (web UI, database, storage nodes, scheduler) is used as-is. The goal is that JOS does everything
+FOS does, so FOG cannot tell the difference, while booting on machines with Secure Boot enabled and no
+per-machine key enrolment.
+
+## Terms
+
+| Name | What it is |
+|------|------------|
+| **FOG** | The imaging server. Unmodified upstream. |
+| **FOS** | FOG's stock client OS: its own kernel plus a userland of `fog.*` scripts. Needs its signing key enrolled on each Secure Boot machine. |
+| **JOS** | FOS's userland on a Canonical-signed kernel, booted via Microsoft-signed shim. Built by `jos/build/build-from-fos.sh`. This is the project. |
+| **JOG** | Not a FOG replacement. Historic name for the optional helper that installs stock FOG on a laptop with DHCP/TFTP confined to a USB NIC. Everything outside `jos/` (plus `scripts/jog-stage-jos-boot.sh`, `jog-doctor.sh`, `test-secureboot-vm.sh`) is this helper. |
+
+## Where things are
+
+- `jos/` — JOS: build script, docs, FOS-parity checklist. `jos/initrd/` is the retired shell client, kept for reference.
+- `scripts/jog-stage-jos-boot.sh` — puts the signed chain (shim, GRUB, kernel, JOS initrd, matching modules, a FOS-style boot menu) into the TFTP root.
+- `scripts/jog-doctor.sh` — checks the staged chain. `scripts/test-secureboot-vm.sh` — boots it in QEMU with Secure Boot enforcing, with an unsigned-bootloader control.
+- `docs/JOG-JOS-RESEARCH.md` — research, decisions, test results, remaining work.
+
+---
+
+# JOG (optional helper, not a FOG replacement)
+
 
 A portable, isolated FOG imaging appliance designed for sensitive or regulated networks.
 
