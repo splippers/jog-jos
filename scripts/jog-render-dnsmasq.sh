@@ -47,4 +47,4 @@ dhcp-option=option:tftp-server,${JOG_NEXT_SERVER}
 dhcp-boot=${JOG_DHCP_BOOTFILE:-ubuntu-signed/shimx64.efi},${JOG_NEXT_SERVER}
 EOF
 
-log "Wrote $OUT (interface=${JOG_USB_IFACE})"
+log "Wrote $OUT (interface=${JOG

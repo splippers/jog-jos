@@ -14,7 +14,7 @@ per-machine key enrolment.
 | **FOG** | The imaging server. Unmodified upstream. |
 | **FOS** | FOG's stock client OS: its own kernel plus a userland of `fog.*` scripts. Needs its signing key enrolled on each Secure Boot machine. |
 | **JOS** | FOS's userland on a Canonical-signed kernel, booted via Microsoft-signed shim. Built by `jos/build/build-from-fos.sh`. This is the project. |
-| **JOG** | Not a FOG replacement. Historic name for the optional helper that installs stock FOG on a laptop with DHCP/TFTP confined to a USB NIC. Everything outside `jos/` (plus `scripts/jog-stage-jos-boot.sh`, `jog-doctor.sh`, `test-secureboot-vm.sh`) is this helper. |
+| **JOG** | The full stack: an Ubuntu-powered imaging laptop running stock FOG, with JOS as the Secure Boot-enabled FOS replacement. JOG is not a FOG fork. The laptop side (Ubuntu autoinstall, FOG install, USB-NIC-isolated DHCP/TFTP, kiosk, wizard: everything outside `jos/`) is **Office Claude's** work; JOS (`jos/`, `scripts/jog-stage-jos-boot.sh`, `jog-doctor.sh`, `test-secureboot-vm.sh`) is the boot-chain work. |
 
 ## Where things are
 
@@ -25,7 +25,7 @@ per-machine key enrolment.
 
 ---
 
-# JOG (optional helper, not a FOG replacement)
+# JOG (the imaging laptop: Ubuntu + FOG + JOS)
 
 
 A portable, isolated FOG imaging appliance designed for sensitive or regulated networks.

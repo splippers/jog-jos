@@ -94,5 +94,4 @@ fi
 touch /etc/jog/wizard.done
 rm -f /etc/jog/unattended.active
 systemctl disable jog-first-boot-unattended.service 2>/dev/null || true
-log "unattended JOG bootstrap complete (iface=${IFACE} imaging=${IMAGING_IP})."
-exit 0
+log "unattended JOG bootstrap complete (iface=${IFACE} imaging=${IMAGING_

@@ -52,9 +52,4 @@ case "${1:-}" in
     systemctl daemon-reload 2>/dev/null || true
     systemctl enable jog-fog-install.service 2>/dev/null || true
     if systemctl start jog-fog-install.service 2>/dev/null; then
-      log "native FOG install started in background (journalctl -fu jog-fog-install.service)"
-    else
-      log "could not start jog-fog-install.service — run: sudo systemctl start jog-fog-install.service"
-    fi
-    ;;
-esac
+      log "native FOG insta

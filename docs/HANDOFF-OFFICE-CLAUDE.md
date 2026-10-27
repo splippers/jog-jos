@@ -1,15 +1,16 @@
-# Handoff to Office Claude: JOS (2026-10-27)
+# Handoff to Office Claude: JOG (the stack) and JOS (2026-10-27)
 
-Branch `unify-jos` in this repo. All commits are local; nothing has been pushed (remote `origin` = `git@github.com:splippers/JOG.git`). Read `README.md` and `docs/JOG-JOS-RESEARCH.md` first; this note is the short version plus where to pick up.
+Branch `unify-jos` in this repo. Pushed to `origin` (`git@github.com:splippers/JOG.git`). Read `README.md` and `docs/JOG-JOS-RESEARCH.md` first; this note is the short version plus where to pick up.
 
 ## Scope (decided by Jon, 2026-10-26)
 - **JOS replaces FOS only** (FOG's PXE client OS). Success = JOS does everything FOS does, FOG cannot tell the difference, and it boots with **Secure Boot on and no per-machine key enrolment**. Fleet is pure Dell.
-- **FOG stays stock upstream.** JOG is NOT a FOG replacement; it is an optional helper that installs stock FOG on an isolated laptop (USB NIC, DHCP/TFTP, autoinstall ISOs, kiosk).
+- **FOG stays stock upstream.**
+- **JOG is the full stack (Jon, 2026-10-27): an Ubuntu-powered imaging laptop running FOG, with JOS as the Secure Boot-enabled FOS replacement.** JOG is not a FOG replacement. **All JOG (laptop) work belongs to Office Claude**: Ubuntu autoinstall ISOs, first-boot wizard, native FOG install (`install/fog-native-install.sh`), USB-NIC-isolated DHCP/TFTP (`scripts/jog-render-dnsmasq.sh`), ufw scoping, kiosk, edge/primary roles, hardware roll-out. The JOS session keeps `jos/`, the signed boot chain and driver/parity work, and will hand JOG findings over rather than act on them.
 - Wendy (an earlier joke target) is excluded. `jurassic-os` is unrelated.
 - Standing rule: **do not deploy JOS to physical hardware without asking Jon.**
 
 ## Terms
-FOG = server. FOS = stock client OS (own kernel + `fog.*` scripts). JOS = FOS userland on a Canonical-signed kernel. JOG = optional FOG-host helper.
+FOG = server. FOS = stock client OS (own kernel + `fog.*` scripts). JOS = FOS userland on a Canonical-signed kernel. JOG = the full stack: Ubuntu imaging laptop running FOG, with JOS as the Secure Boot-enabled FOS replacement.
 
 ## Secure Boot chain (verified in QEMU/OVMF with enforcing keys)
 firmware PXE -> Microsoft-signed `shimx64.efi` -> `grubnetx64` (staged as `grubx64.efi`) -> Canonical-signed `vmlinuz` -> JOS initramfs (unsigned initrd, GRUB doesn't check) + `modules.img` (signed modules from the SAME kernel package; lockdown rejects others). iPXE/snponly are unsigned and cannot be the first stage. Negative control (`scripts/test-secureboot-vm.sh`): an unsigned bootloader is rejected with "Access Denied".

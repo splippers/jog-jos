@@ -218,4 +218,4 @@ Next steps:
   1) Review /etc/netplan/ — add WiFi with low route-metric if not already configured.
   2) Reboot if you changed hostname or netplan (FOG keeps running after reboot).
 
-Cluster: read docs/CLUSTER.md and run scripts/jog-sync-images-from-primary.sh on edge nodes." 24 72
+Cluster: read docs/CLUSTER.md and run scripts/jog-sync-images-from-primary.sh on edge 

@@ -1,6 +1,6 @@
 # JOS research — a drop-in, Secure Boot-compatible replacement for FOS
 
-**Scope (decided 2026-10-26):** JOS replaces FOS only; FOG is used as upstream ships it. JOG is not a FOG replacement and is not being developed as one; it survives as an optional helper for running stock FOG on an isolated laptop. Success criterion: JOS does everything FOS does, so FOG cannot tell the difference.
+**Scope (decided 2026-10-26):** JOS replaces FOS only; FOG is used as upstream ships it. JOG is not a FOG replacement: it is the whole stack, an Ubuntu-powered imaging laptop running stock FOG with JOS as the Secure Boot-enabled FOS replacement. JOG (laptop) work is handled by Office Claude; JOS work stays with the JOS session. Success criterion: JOS does everything FOS does, so FOG cannot tell the difference.
 
 Merged 2026-10-25 from: `JOG` (server appliance), `JOS` (client runtime, formerly the `jos-client` submodule and a separate `jos` repo), plus references in `fog-ambulance`, `JONOTRON_CONTEXT.md` and `craic/`.
 
@@ -103,7 +103,7 @@ FOS has two halves, and only one of them is ours:
 
 - Fleet is pure Dell; no other vendors' firmware quirks are in scope.
 - WENDY/CLINIC (LLM diagnosis gate) was a joke and is excluded from this repo.
-- JOS replaces FOS only, FOG stays upstream, and JOG is just an optional helper (Jon, 2026-10-26: "it doesn't make sense to reinvent that particular wheel").
+- JOS replaces FOS only, FOG stays upstream, and JOG is the whole stack (Ubuntu imaging laptop + FOG + JOS), with laptop-side work owned by Office Claude (Jon, 2026-10-26: "it doesn't make sense to reinvent that particular wheel").
 - JOS reuses FOS userland rather than reimplementing the FOG client (Jon: "don't reinvent the wheel").
 - JOS lives in `jos/`; the standalone `splippers/JOS` repo is superseded once this branch is pushed.
 
