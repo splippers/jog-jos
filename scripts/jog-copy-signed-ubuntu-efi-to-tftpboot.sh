@@ -75,6 +75,14 @@ install -m 0644 "$GRUB" "$DEST/grubx64.efi"
 install -m 0644 "$SHIM" "$DEST/EFI/Boot/bootx64.efi"
 install -m 0644 "$GRUB" "$DEST/EFI/ubuntu/grubx64.efi"
 
+CFG="/etc/jog/grub.cfg"
+[[ -f "$CFG" ]] || {
+  log "missing $CFG (installed from JOG/grub/grub.cfg by install/jog-install.sh) - shim/grub are staged but have nothing to chain to"
+  exit 1
+}
+install -m 0644 "$CFG" "$DEST/grub.cfg"
+install -m 0644 "$CFG" "$DEST/EFI/ubuntu/grub.cfg"
+
 MAN="$DEST/README.txt"
 {
   echo "Signed Ubuntu UEFI binaries staged by jog-copy-signed-ubuntu-efi-to-tftpboot.sh"
@@ -84,6 +92,10 @@ MAN="$DEST/README.txt"
   echo "  shim: $SHIM"
   echo "  grub: $GRUB"
   [[ -n "$NETGRUB" ]] && echo "  grubnet: $NETGRUB"
+  echo "  grub.cfg: $CFG"
+  echo ""
+  echo "Kernel (vmlinuz) is staged separately by"
+  echo "jog-copy-signed-ubuntu-kernel-to-tftpboot.sh - run that too."
   echo ""
   echo "Flat TFTP paths (relative to tftpboot root): ubuntu-signed/shimx64.efi"
   echo "Optionally set JOG_DHCP_BOOTFILE=ubuntu-signed/shimx64.efi and run jog-render-dnsmasq.sh"
