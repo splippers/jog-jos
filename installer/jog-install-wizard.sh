@@ -31,8 +31,10 @@ DEF_IMAGING_IP="10.99.0.1"
 DEF_PREFIX="24"
 DEF_DHCP_START="10.99.0.100"
 DEF_DHCP_END="10.99.0.250"
-DEF_ROUTER="${DEF_IMAGING_IP}"
-DEF_NEXT="${DEF_IMAGING_IP}"
+# No DEF_ROUTER/DEF_NEXT: both dialogs below default to whatever imaging IP
+# was just entered, not a separate static default - that's the sensible
+# behaviour and it already happens via ${IMAGING_IP}. (Two unused vars with
+# this exact name used to shadow that fact; removed.)
 
 # --- Welcome ---
 $DIALOG --title "JOG setup" --msgbox \
