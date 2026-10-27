@@ -30,7 +30,7 @@ Fleet is pure Dell (Latitude/Precision), all UEFI. The design intent was right (
 | 2 | Docs put iPXE before shim; unsigned iPXE can't be the first stage | **Fixed**: docs and rules now say firmware PXE → shim → grubnetx64 → signed kernel → JOS. iPXE is Secure Boot-off only |
 | 3 | `boot.ipxe` loads the kernel directly | **Marked** Secure Boot-off only |
 | 4 | No `grub.cfg` or kernel/initrd staging | **Fixed**: `scripts/jog-stage-jos-boot.sh`, run by `jog-provision-stack.sh` |
-| 5 | Kernel lockdown rejects unsigned modules, so NIC/storage drivers must match the signed kernel | **Fixed**: `modules.img` is built from the same kernel package (28 modules, 3 MB incl. USB3 NICs, VMD, NVMe, AHCI, NFS) and loaded by `jos-modules.sh` |
+| 5 | Kernel lockdown rejects unsigned modules, so NIC/storage drivers must match the signed kernel | **Fixed**: `modules.img` is built from the same kernel package (default profile `full`: 873 modules, 37 MB: all wired/USB NICs, NVMe, SATA, SCSI/SAS, RAID/dm, USB, Thunderbolt, HID, filesystems; `JOS_PROFILE=small` gives the old 28) |
 | 6 | Shim cert expiry (Microsoft 2011 CA) | **Open**: staging prefers the dual-signed shim; needs a test on your oldest Latitudes |
 | 7 | MOK enrolment | **Avoided**: nothing needs it |
 
@@ -92,7 +92,7 @@ FOS has two halves, and only one of them is ours:
 
 - **Userland** (`fog.*` scripts, partclone, udpcast, resize/LVM/4Kn logic): identical, because JOS runs FOS's own userland. Bump `FOS_TAG` to track upstream fixes; re-run the VM test after each bump.
 - **Kernel and boot menu**, where JOS differs and parity must be earned:
-  1. **Drivers.** FOS builds its drivers into its own kernel (plus out-of-tree Realtek). JOS gets only what `modules.img` carries (28 modules today). For flawless parity, ship every network, storage, USB and Thunderbolt module, or hardware that FOS images will fail on JOS. Needs a Dell hardware matrix test.
+  1. **Drivers.** FOS builds its drivers into its own kernel. JOS now ships the `full` module profile (873 modules, 37 MB; wireless and GPU excluded) plus rtl_nic/tigon/bnx2/bnx2x/e100 firmware. Tested in an enforcing-Secure-Boot VM with an emulated Intel e1000e NIC and an NVMe disk (not virtio): deploy completed and checksums matched. Still needs a Dell hardware matrix test; out-of-tree Realtek drivers FOS carries (e.g. r8125/r8126 2.5G) are not covered by in-tree modules.
   2. **Boot menu.** FOG's iPXE menu (registration, inventory, debug, etc.) does not exist under Secure Boot, so `jog-stage-jos-boot.sh` now emits GRUB entries mirroring the stock FOS USB image: deploy/capture, full registration (`mode=manreg`), quick registration (`mode=autoreg`), system info, debug. Not yet exercised against FOG.
   3. **Unregistered hosts.** Entry 1 on an unknown machine errors ("Invalid Host") exactly as the FOS USB image does; the technician must pick registration. Decide whether JOS should do better than FOS here.
   4. **Not supported under Secure Boot:** iPXE jumpstart (unsigned). Memtest86+ is offered as "6. Memtest86+ (Needs Secure Boot off)" when `/boot/mt86+x64` (package memtest86+) exists; with Secure Boot on, GRUB refuses it, FOG's PXE menu timeout/hidden-menu behaviour, per-host PXE menu overrides (they are iPXE).

@@ -27,11 +27,29 @@ MODDIR="/lib/modules/${KVER}"
 [[ -d "$MODDIR" ]] || die "$MODDIR missing"
 [[ -r "$INITRD" ]] || die "JOS initrd not found at $INITRD (build it: jos/build/build-initrd.sh)"
 
-# Dell fleet: USB3 dock/dongle NICs, onboard Ethernet, Intel VMD/NVMe/AHCI, filesystems partclone/NFS touch.
-MODULES="${JOS_MODULES:-r8152 ax88179_178a cdc_ether cdc_ncm r8153_ecm usbnet r8169 e1000e igc igb tg3 \
+# FOS builds its drivers into its own kernel; Ubuntu's are modules, so JOS must ship them. Default profile
+# "full" = every wired NIC / PHY / USB-NIC, NVMe, SATA/AHCI, SCSI/SAS HBA, device-mapper/RAID, USB host +
+# storage, Thunderbolt, MMC, HID/keyboard and I2C-HID (laptop keyboards), plus the filesystems partclone/NFS
+# touch. Wireless and GPU are left out (FOS has no use for them). JOS_PROFILE=small restores the old 28-module
+# Dell shortlist; JOS_MODULES="a b c" overrides the list; JOS_MODULE_DIRS overrides the directories scanned.
+SMALL_MODULES="r8152 ax88179_178a cdc_ether cdc_ncm r8153_ecm usbnet r8169 e1000e igc igb tg3 \
 xhci_pci xhci_hcd ehci_pci uhci_hcd usb_storage uas nvme vmd ahci sd_mod \
-nfs nfsv3 nfsv4 vfat ext4 ntfs3 exfat}"
-FIRMWARE_DIRS="${JOS_FIRMWARE_DIRS:-rtl_nic}"
+nfs nfsv3 nfsv4 vfat ext4 ntfs3 exfat"
+FULL_DIRS="drivers/net/ethernet drivers/net/usb drivers/net/phy drivers/net/mdio drivers/net/pcs \
+drivers/nvme drivers/ata drivers/scsi drivers/md drivers/usb/storage drivers/usb/host drivers/usb/typec \
+drivers/thunderbolt drivers/mmc/host drivers/hid drivers/input/keyboard drivers/i2c/busses"
+FULL_EXTRA="vmd sd_mod sr_mod sg loop nfs nfsv3 nfsv4 vfat fat ext4 ntfs3 exfat xfs btrfs usbhid hid_generic i2c_hid_acpi \
+dm_mod dm_crypt usb_storage uas xhci_pci xhci_hcd ehci_pci uhci_hcd thunderbolt"
+if [[ -n "${JOS_MODULES:-}" ]]; then MODULES="$JOS_MODULES"
+elif [[ "${JOS_PROFILE:-full}" == small ]]; then MODULES="$SMALL_MODULES"
+else
+  MODULES="$FULL_EXTRA"
+  for d in ${JOS_MODULE_DIRS:-$FULL_DIRS}; do
+    [[ -d "/lib/modules/${KVER}/kernel/$d" ]] || continue
+    MODULES+=" $(find "/lib/modules/${KVER}/kernel/$d" -name '*.ko*' -printf '%f\n' | sed 's/\.ko.*//')"
+  done
+fi
+FIRMWARE_DIRS="${JOS_FIRMWARE_DIRS:-rtl_nic tigon bnx2 bnx2x e100}"
 
 command -v sbverify >/dev/null || die "install sbsigntool (sbverify)"
 sbverify --list "$KERNEL" 2>&1 | grep -q 'signature 1' || die "$KERNEL has no Secure Boot signature"
