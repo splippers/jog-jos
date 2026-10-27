@@ -1,0 +1,78 @@
+#!/bin/sh
+# shellcheck shell=bash
+# Log errors to the standard location early.
+set -e
+exec 2>>/tmp/jos_error.log
+# JOS init script — orchestrates networking, registration, inventory, and task handling
+# Runs inside BusyBox initramfs
+
+# -----------------------------
+# Basic environment setup
+# -----------------------------
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/tools:/scripts
+export HOME=/
+
+. /scripts/jos-common.sh
+
+log "INIT: Booting JOS minimal PXE environment..."
+
+# -----------------------------
+# Mount essential filesystems
+# -----------------------------
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+# -----------------------------
+# Kernel modules (signed, from modules.img) — NIC/storage drivers
+# -----------------------------
+/scripts/jos-modules.sh || log "INIT: module load non-fatal — continuing"
+
+# -----------------------------
+# Networking
+# -----------------------------
+log "INIT: Bringing up networking..."
+/scripts/jos-net.sh
+
+# -----------------------------
+# Serial number detection
+# -----------------------------
+[[ -x /scripts/jos-serial.sh ]] || die "INIT: jos-serial.sh missing!"
+
+SERIAL=$(/scripts/jos-serial.sh)
+
+[[ -n "$SERIAL" ]] || die "INIT: Could not determine serial number."
+
+log "INIT: Serial detected: $SERIAL"
+
+# -----------------------------
+# FOG registration
+# -----------------------------
+log "INIT: Registering/updating host with FOG..."
+/scripts/jos-register.sh "$SERIAL" || log "INIT: Registration non-fatal — continuing"
+
+# -----------------------------
+# Hardware inventory
+# -----------------------------
+log "INIT: Collecting hardware inventory..."
+/scripts/jos-inventory.sh "$SERIAL" || log "INIT: Inventory non-fatal — continuing"
+
+# -----------------------------
+# FOG tasks (deploy/capture — same REST semantics as classic FOS workflows)
+# -----------------------------
+log "INIT: Starting FOG task runner..."
+/scripts/jos-fog-task-runner.sh "$SERIAL" || log "INIT: task runner exited $?"
+
+# -----------------------------
+# Optional multicast automation (legacy env-driven queue — keep for lab workflows)
+# -----------------------------
+if [[ -n "${JOS_IMAGE_ID:-}" ]]; then
+  log "INIT: JOS_IMAGE_ID set — legacy multicast queue path..."
+  /scripts/jos-multicast.sh "$SERIAL" || log "INIT: multicast helper exited $?"
+fi
+
+# -----------------------------
+# If we reach here, drop to shell
+# -----------------------------
+log "INIT: No further tasks. Dropping to shell."
+exec /bin/sh

@@ -21,9 +21,9 @@ install -m 0755 "${ROOT}/installer/jog-install-wizard.sh" /usr/local/sbin/jog-in
 install -m 0644 "${ROOT}/installer/motd/jog-remind.sh" /etc/profile.d/jog-remind.sh
 install -m 0755 "${ROOT}/scripts/jog-sync-images-from-primary.sh" /usr/local/bin/jog-sync-images-from-primary.sh
 install -m 0755 "${ROOT}/install/fog-native-install.sh" /usr/local/sbin/fog-native-install.sh
-install -m 0644 "${ROOT}/grub/grub.cfg" /etc/jog/grub.cfg
 install -m 0755 "${ROOT}/scripts/jog-copy-signed-ubuntu-efi-to-tftpboot.sh" /usr/local/sbin/jog-copy-signed-ubuntu-efi-to-tftpboot.sh
-install -m 0755 "${ROOT}/scripts/jog-copy-signed-ubuntu-kernel-to-tftpboot.sh" /usr/local/sbin/jog-copy-signed-ubuntu-kernel-to-tftpboot.sh
+install -m 0755 "${ROOT}/scripts/jog-stage-jos-boot.sh" /usr/local/sbin/jog-stage-jos-boot.sh
+install -m 0755 "${ROOT}/scripts/jog-doctor.sh" /usr/local/sbin/jog-doctor.sh
 install -m 0755 "${ROOT}/scripts/jog-provision-stack.sh" /usr/local/sbin/jog-provision-stack.sh
 install -m 0755 "${ROOT}/scripts/jog-setup-reliable-kiosk.sh" /usr/local/sbin/jog-setup-reliable-kiosk.sh
 install -m 0755 "${ROOT}/scripts/jog-fog-install-once.sh" /usr/local/sbin/jog-fog-install-once.sh

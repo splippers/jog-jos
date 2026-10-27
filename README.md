@@ -1,4 +1,32 @@
-# JOG — Jonathan’s OpenSource Ghost
+# JOS — a Secure Boot-compatible replacement for FOS
+
+Type: Infrastructure | Intent: Pillar | Audience: Sysadmins
+
+**JOS** replaces **FOS**, the client environment FOG PXE-boots to image machines. It does not replace FOG:
+the FOG server (web UI, database, storage nodes, scheduler) is used as-is. The goal is that JOS does everything
+FOS does, so FOG cannot tell the difference, while booting on machines with Secure Boot enabled and no
+per-machine key enrolment.
+
+## Terms
+
+| Name | What it is |
+|------|------------|
+| **FOG** | The imaging server. Unmodified upstream. |
+| **FOS** | FOG's stock client OS: its own kernel plus a userland of `fog.*` scripts. Needs its signing key enrolled on each Secure Boot machine. |
+| **JOS** | FOS's userland on a Canonical-signed kernel, booted via Microsoft-signed shim. Built by `jos/build/build-from-fos.sh`. This is the project. |
+| **JOG** | The full stack: an Ubuntu-powered imaging laptop running stock FOG, with JOS as the Secure Boot-enabled FOS replacement. JOG is not a FOG fork. The laptop side (Ubuntu autoinstall, FOG install, USB-NIC-isolated DHCP/TFTP, kiosk, wizard: everything outside `jos/`) is **Office Claude's** work; JOS (`jos/`, `scripts/jog-stage-jos-boot.sh`, `jog-doctor.sh`, `test-secureboot-vm.sh`) is the boot-chain work. |
+
+## Where things are
+
+- `jos/` — JOS: build script, docs, FOS-parity checklist. `jos/initrd/` is the retired shell client, kept for reference.
+- `scripts/jog-stage-jos-boot.sh` — puts the signed chain (shim, GRUB, kernel, JOS initrd, matching modules, a FOS-style boot menu) into the TFTP root.
+- `scripts/jog-doctor.sh` — checks the staged chain. `scripts/test-secureboot-vm.sh` — boots it in QEMU with Secure Boot enforcing, with an unsigned-bootloader control.
+- `docs/JOG-JOS-RESEARCH.md` — research, decisions, test results, remaining work.
+
+---
+
+# JOG (the imaging laptop: Ubuntu + FOG + JOS)
+
 
 A portable, isolated FOG imaging appliance designed for sensitive or regulated networks.
 
@@ -15,6 +43,8 @@ JOG is a portable FOG server designed to run on a laptop or small machine and pe
 It exposes DHCP, TFTP, and PXE services exclusively on a dedicated USB Ethernet interface, while all internet access, updates, and management traffic remain on a separate interface (typically Wi‑Fi).
 
 JOG is commonly paired with JOS clients for zero‑touch imaging workflows.
+
+This repo now also contains JOS (the client runtime) under `jos/`. Consolidated research, Secure Boot findings and the roll-out plan: `docs/JOG-JOS-RESEARCH.md`.
 
 ==================================================
 

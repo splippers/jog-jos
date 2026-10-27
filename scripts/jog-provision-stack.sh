@@ -18,8 +18,8 @@ log() { echo "[jog-provision-stack] $*"; }
 if [[ -x /usr/local/sbin/jog-copy-signed-ubuntu-efi-to-tftpboot.sh ]]; then
   /usr/local/sbin/jog-copy-signed-ubuntu-efi-to-tftpboot.sh || log "EFI staging failed (optional; retry: sudo jog-copy-signed-ubuntu-efi-to-tftpboot.sh)"
 fi
-if [[ -x /usr/local/sbin/jog-copy-signed-ubuntu-kernel-to-tftpboot.sh ]]; then
-  /usr/local/sbin/jog-copy-signed-ubuntu-kernel-to-tftpboot.sh || log "kernel staging failed (optional; retry: sudo jog-copy-signed-ubuntu-kernel-to-tftpboot.sh)"
+if [[ -x /usr/local/sbin/jog-stage-jos-boot.sh ]]; then
+  /usr/local/sbin/jog-stage-jos-boot.sh || log "JOS boot staging failed (retry: sudo jog-stage-jos-boot.sh; needs jos/build/out/initrd.img)"
 fi
 
 [[ -f /etc/jog/jog.env ]] || {

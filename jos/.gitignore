@@ -1,0 +1,45 @@
+*.swp
+
+# -----------------------------------------------------------------------------
+# Third-party / vendored binaries (fetched at build time — never commit)
+# -----------------------------------------------------------------------------
+initrd/bin/
+initrd/sbin/
+initrd/lib/
+initrd/lib64/
+initrd/usr/
+initrd/tools/
+
+# Build extracts / staging (may contain ELF .deb payloads, libc, udpcast, etc.)
+build/tmp/
+
+# -----------------------------------------------------------------------------
+# Build artifacts
+# -----------------------------------------------------------------------------
+build/out/
+
+# -----------------------------------------------------------------------------
+# Download / package artifacts (often binary or contain binaries)
+# -----------------------------------------------------------------------------
+*.deb
+*.rpm
+*.AppImage
+*.msix
+*.msi
+*.exe
+*.dll
+*.partial
+*.iso
+
+# Common static-binary names if accidentally dropped in repo root
+/busybox
+/curl
+/dmidecode
+/lshw
+/hwinfo
+/udp-receiver
+/udp-sender
+
+
+# Local rolling log (FLINTNEEDLE / CSOP); not committed
+TRANSCRIPT.md
