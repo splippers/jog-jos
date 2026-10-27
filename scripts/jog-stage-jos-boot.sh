@@ -75,6 +75,9 @@ install -d "$TFTP/jos" "$TFTP/grub"
 install -m 0644 "$KERNEL" "$TFTP/jos/vmlinuz"
 install -m 0644 "$INITRD" "$TFTP/jos/initrd.img"
 install -m 0644 "$W/modules.img" "$TFTP/jos/modules.img"
+# Memtest86+ is unsigned, so it only runs with Secure Boot off; the menu entry says so. Needs the memtest86+ package.
+MEMTEST="${JOS_MEMTEST:-/boot/mt86+x64}"
+if [[ -f "$MEMTEST" ]]; then install -m 0644 "$MEMTEST" "$TFTP/jos/memtest"; else rm -f "$TFTP/jos/memtest"; log "no memtest at $MEMTEST (apt install memtest86+); menu entry omitted"; fi
 echo "$KVER" >"$TFTP/jos/kver"
 # Shim derives the directory it fetches grubx64.efi from out of what the DHCP server sent as the boot file, and
 # real DHCP servers (dnsmasq/FOG's TFTP) do not always carry the sub-directory through. Serve the pair from both
@@ -95,8 +98,8 @@ else
   FLAVOR="legacy shell JOS"
 fi
 # Menu mirrors the stock FOS USB image (FOGProject/fos create-usb-image.sh) so a technician gets the same
-# choices FOG's PXE menu gives. iPXE jumpstart and memtest entries are omitted: unsigned binaries cannot run
-# under Secure Boot. Timeout defaults to 5s on entry 1 (deploy/capture); set JOS_GRUB_TIMEOUT=-1 to wait.
+# choices FOG's PXE menu gives. the iPXE jumpstart entry is omitted (unsigned). Memtest86+ is kept but is also
+# unsigned, so it is labelled as needing Secure Boot off. Timeout defaults to 5s on entry 1 (deploy/capture); set JOS_GRUB_TIMEOUT=-1 to wait.
 entry() { # title extra-args
   printf 'menuentry "%s" {\n    linux  /jos/vmlinuz %s loglevel=4 %s %s\n    initrd /jos/initrd.img /jos/modules.img\n}\n' \
     "$1" "$FOS_ARGS" "$2" "${JOS_CMDLINE_EXTRA:-}"
@@ -113,5 +116,8 @@ entry() { # title extra-args
     entry "4. Client System Information (Compatibility)" "mode=sysinfo"
   fi
   entry "5. JOS Debug (verbose, isdebug=yes)" "loglevel=7 isdebug=yes"
+  if [[ -f "$TFTP/jos/memtest" ]]; then
+    printf 'menuentry "6. Memtest86+ (Needs Secure Boot off)" {\n    linux /jos/memtest\n}\n'
+  fi
 } >"$TFTP/grub/grub.cfg"
 log "staged into $TFTP: $(wc -w <<<"${want[*]}") modules ($(du -h "$TFTP/jos/modules.img" | cut -f1)), kernel ${KVER}"
