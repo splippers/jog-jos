@@ -38,6 +38,11 @@ install -m 0644 "${ROOT}/systemd/jog-fog-install.service" /etc/systemd/system/jo
 mkdir -p /etc/systemd/system/dnsmasq.service.d
 install -m 0644 "${ROOT}/systemd/dnsmasq.service.d/jog-pre.conf" /etc/systemd/system/dnsmasq.service.d/jog-pre.conf
 
+# Without this, real-hardware PXE clients can stall mid-transfer: conntrack drops the
+# TFTP data phase's port switch as untracked unless the helper module is loaded.
+install -m 0644 "${ROOT}/config/jog-tftp-conntrack.conf" /etc/modules-load.d/jog-tftp-conntrack.conf
+modprobe nf_conntrack_tftp 2>/dev/null || true
+
 mkdir -p /etc/xdg/autostart
 install -m 0644 "${ROOT}/kiosk/jog-chromium.desktop" /etc/xdg/autostart/jog-chromium.desktop
 
