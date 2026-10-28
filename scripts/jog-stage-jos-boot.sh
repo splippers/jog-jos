@@ -127,6 +127,7 @@ entry() { # title extra-args
   echo "set default=0"
   echo "set timeout=${JOS_GRUB_TIMEOUT:-5}"
   echo "insmod all_video"
+  echo 'echo "JOS - Jonathan'"'"'s OS"'
   entry "1. JOS Image Deploy/Capture" ""
   if [[ -f "${INITRD%.img}.fos-tag" ]]; then
     entry "2. Full Host Registration and Inventory" "mode=manreg"
