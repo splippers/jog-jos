@@ -40,11 +40,14 @@ rm -rf "$W/root/lost+found"
 # FOS boots from root=/dev/ram0, where the kernel itself mounts devtmpfs before PID 1. As a plain initramfs the
 # Canonical kernel does not, so /init mounts the pseudo filesystems and then hands over to FOS's own init
 # (BusyBox init -> /etc/inittab -> rcS -> S99fog).
+cp "$HERE/jos-report-boot-facts.sh" "$W/root/jos-report-boot-facts.sh"
+chmod 0755 "$W/root/jos-report-boot-facts.sh"
 cat >"$W/root/init" <<'INIT'
 #!/bin/busybox sh
 /bin/busybox mount -t devtmpfs devtmpfs /dev
 /bin/busybox mount -t proc proc /proc
 /bin/busybox mount -t sysfs sysfs /sys
+/jos-report-boot-facts.sh &
 exec /sbin/init
 INIT
 chmod 0755 "$W/root/init"
