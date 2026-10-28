@@ -27,10 +27,12 @@ install -m 0755 "${ROOT}/scripts/jog-doctor.sh" /usr/local/sbin/jog-doctor.sh
 install -m 0755 "${ROOT}/scripts/jog-provision-stack.sh" /usr/local/sbin/jog-provision-stack.sh
 install -m 0755 "${ROOT}/scripts/jog-setup-reliable-kiosk.sh" /usr/local/sbin/jog-setup-reliable-kiosk.sh
 install -m 0755 "${ROOT}/scripts/jog-fog-install-once.sh" /usr/local/sbin/jog-fog-install-once.sh
+install -m 0755 "${ROOT}/scripts/jog-force-imaging-nic-up.sh" /usr/local/sbin/jog-force-imaging-nic-up.sh
 
 install -m 0644 "${ROOT}/systemd/jog-refresh-status.service" /etc/systemd/system/jog-refresh-status.service
 install -m 0644 "${ROOT}/systemd/jog-refresh-status.timer" /etc/systemd/system/jog-refresh-status.timer
 install -m 0644 "${ROOT}/systemd/jog-render-dnsmasq.service" /etc/systemd/system/jog-render-dnsmasq.service
+install -m 0644 "${ROOT}/systemd/jog-force-imaging-nic-up.service" /etc/systemd/system/jog-force-imaging-nic-up.service
 install -m 0644 "${ROOT}/systemd/jog-fog-install.service" /etc/systemd/system/jog-fog-install.service
 
 mkdir -p /etc/systemd/system/dnsmasq.service.d
@@ -43,6 +45,7 @@ install -m 0644 "${ROOT}/kiosk/jog-chromium.desktop" /etc/xdg/autostart/jog-chro
 if [[ "${JOG_SKIP_SYSTEMD:-0}" != "1" ]] && [[ -d /run/systemd/system ]]; then
   systemctl daemon-reload
   systemctl enable jog-render-dnsmasq.service || true
+  systemctl enable jog-force-imaging-nic-up.service || true
   systemctl enable --now jog-refresh-status.timer || true
   systemctl enable jog-fog-install.service || true
 fi

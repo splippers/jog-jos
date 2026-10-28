@@ -36,6 +36,9 @@ if [[ -z "${JOG_USB_IFACE:-}" ]] || [[ "${JOG_USB_IFACE}" =~ REPLACE_ME ]]; then
   exit 0
 fi
 
+if [[ -x /usr/local/sbin/jog-force-imaging-nic-up.sh ]]; then
+  /usr/local/sbin/jog-force-imaging-nic-up.sh || log "imaging NIC force-up failed (optional if the link is already configured another way)"
+fi
 if [[ -x /usr/local/bin/jog-render-dnsmasq.sh ]]; then
   /usr/local/bin/jog-render-dnsmasq.sh || log "dnsmasq render warned"
 fi
