@@ -1,174 +1,402 @@
-# JOS (Jonathan's OS) — a Secure Boot-compatible replacement for FOS
+# JOS (Jonathan's OS)
 
-Type: Infrastructure | Intent: Pillar | Audience: Sysadmins
+> A Secure Boot-compatible replacement for FOS that preserves FOG workflows while eliminating the need for per-device key enrolment.
 
-**JOS** replaces **FOS**, the client environment FOG PXE-boots to image machines. It does not replace FOG:
-the FOG server (web UI, database, storage nodes, scheduler) is used as-is. The goal is that JOS does everything
-FOS does, so FOG cannot tell the difference, while booting on machines with Secure Boot enabled and no
-per-machine key enrolment.
-
-## Terms
-
-| Name | What it is |
-|------|------------|
-| **FOG** | The imaging server. Unmodified upstream. |
-| **FOS** | FOG's stock client OS: its own kernel plus a userland of `fog.*` scripts. Needs its signing key enrolled on each Secure Boot machine. |
-| **JOS** | FOS's userland on a Canonical-signed kernel, booted via Microsoft-signed shim. Built by `jos/build/build-from-fos.sh`. This is the project. |
-| **JOG** | The full stack: an Ubuntu-powered imaging laptop running stock FOG, with JOS as the Secure Boot-enabled FOS replacement. JOG is not a FOG fork. The laptop side (Ubuntu autoinstall, FOG install, USB-NIC-isolated DHCP/TFTP, kiosk, wizard: everything outside `jos/`) is **Office Claude's** work; JOS (`jos/`, `scripts/jog-stage-jos-boot.sh`, `jog-doctor.sh`, `test-secureboot-vm.sh`) is the boot-chain work. |
-
-## Where things are
-
-- `jos/` — JOS: build script, docs, FOS-parity checklist. `jos/initrd/` is the retired shell client, kept for reference.
-- `scripts/jog-stage-jos-boot.sh` — puts the signed chain (shim, GRUB, kernel, JOS initrd, matching modules, a FOS-style boot menu) into the TFTP root.
-- `scripts/jog-doctor.sh` — checks the staged chain. `scripts/test-secureboot-vm.sh` — boots it in QEMU with Secure Boot enforcing, with an unsigned-bootloader control.
-- `docs/JOG-JOS-RESEARCH.md` — research, decisions, test results, remaining work.
+**Type:** Infrastructure  
+**Intent:** Pillar  
+**Audience:** Sysadmins, Desktop Engineers, Field Technicians
 
 ---
 
-# JOG (the imaging laptop: Ubuntu + FOG + JOS)
+# Overview
 
+JOS is a drop-in replacement for the FOG Operating System (FOS).
 
-A portable, isolated FOG imaging appliance designed for sensitive or regulated networks.
+It does **not** replace FOG itself.
 
-Type: Infrastructure / Appliance  
-Intent: Pillar + Enabler  
-Audience: Sysadmins, field technicians, IT operations
+The objective of JOS is simple:
 
-==================================================
+> Provide complete FOS behavioural compatibility while booting on Secure Boot-enabled hardware using the standard Microsoft → Canonical trust chain.
 
-OVERVIEW
+The existing FOG server remains untouched:
 
-JOG is a portable FOG server designed to run on a laptop or small machine and perform PXE imaging without interfering with a corporate or restricted LAN.
+- Web UI
+- Database
+- Storage nodes
+- Scheduler
+- Imaging workflows
+- Task management
 
-It exposes DHCP, TFTP, and PXE services exclusively on a dedicated USB Ethernet interface, while all internet access, updates, and management traffic remain on a separate interface (typically Wi‑Fi).
+From FOG's perspective, JOS should behave exactly like FOS.
 
-JOG is commonly paired with JOS clients for zero‑touch imaging workflows.
+The only difference is that JOS boots through a modern Secure Boot-compatible chain rather than relying on custom key enrolment.
 
-This repo now also contains JOS (the client runtime) under `jos/`. Consolidated research, Secure Boot findings and the roll-out plan: `docs/JOG-JOS-RESEARCH.md`.
+---
 
-==================================================
+# Why JOS Exists
 
-WHY JOG EXISTS
+FOG remains one of the most effective imaging platforms available, but modern hardware increasingly enforces Secure Boot.
 
-Traditional PXE imaging setups are often banned or heavily restricted in corporate environments because they risk:
+Traditional FOS deployments typically require:
 
-- rogue DHCP servers
-- broadcast leakage
-- accidental interference with production networks
+- Secure Boot to be disabled, or
+- Custom key enrolment on every machine
 
-JOG exists to provide a physically and logically isolated imaging solution that technicians can deploy safely, quickly, and repeatedly.
+Neither approach scales well in enterprise environments.
 
-==================================================
+JOS removes this operational burden by leveraging:
 
-CORE DESIGN PRINCIPLES
+```text
+Microsoft-signed shim
+        ↓
+Canonical-signed GRUB
+        ↓
+Canonical-signed Linux kernel
+        ↓
+JOS runtime
+        ↓
+Existing FOG workflows
+```
 
-PHYSICAL ISOLATION  
-DHCP and PXE services bind only to a USB Ethernet NIC. They never listen on onboard Ethernet or Wi‑Fi.
+The result is a FOG-compatible imaging client that works on Secure Boot systems without requiring machine-by-machine trust configuration.
 
-NETWORK SEPARATION  
-Imaging traffic and client booting are confined to a private RFC1918 subnet. Updates and admin access use a different interface.
+---
 
-SECURE BOOT AWARE  
-EFI staging uses signed Ubuntu boot assets suitable for modern UEFI systems.
+# Design Philosophy
 
-ZERO‑TOUCH CLIENT FLOW  
-Clients boot, discover the server via DHCP NEXT SERVER, chain into JOS, register, inventory, and image without prompts.
+JOS is deliberately conservative.
 
-OPERATOR VISIBILITY  
-A local kiosk surfaces FOG management and system status continuously during imaging sessions.
+Rather than creating a new imaging platform, it focuses on preserving the existing FOG ecosystem and solving a single problem extremely well.
 
-==================================================
+Core principles:
 
-TYPICAL TECHNICIAN WORKFLOW
+- Preserve FOG compatibility
+- Minimise divergence from upstream FOG
+- Maintain simple rollback paths
+- Eliminate custom Secure Boot key management
+- Remain auditable and predictable
+- Reduce technician effort
 
-1. Plug USB Ethernet adapter into the JOG laptop
-2. Connect target machine to the USB imaging network
-3. On target: press F12 and boot from IPv4
-4. Walk away
+Success is measured by invisibility.
 
-JOG provides DHCP, chains iPXE, and hands off to JOS. JOS registers with FOG and executes imaging automatically.
+If technicians cannot tell the difference between FOS and JOS, the project has succeeded.
 
-==================================================
+---
 
-CORPORATE LAN SAFETY
+# Terminology
 
-JOG enforces safety through configuration, not policy:
+| Name | Description |
+|--------|------------|
+| **FOG** | The imaging server platform. Unmodified upstream. |
+| **FOS** | FOG's client runtime consisting of its Linux kernel and fog.\* userland scripts. |
+| **JOS** | The Secure Boot-compatible FOS replacement built around a Canonical-signed kernel and Microsoft-trusted boot chain. |
+| **JOG** | The complete imaging appliance consisting of Ubuntu, FOG, and JOS running on portable hardware. |
 
-- dnsmasq is bound to the USB imaging interface only
-- no DHCP sockets on Wi‑Fi or onboard NICs
-- optional nftables rules to block forwarding
-- routing metrics ensure imaging traffic never becomes the default route
+---
 
-These constraints are explicit and auditable.
+# Architecture
 
-==================================================
+```text
+          +-------------------------+
+          |         FOG Server      |
+          |                         |
+          |  Web UI                 |
+          |  Database               |
+          |  Scheduler              |
+          |  Storage Nodes          |
+          +------------+------------+
+                       |
+                       |
+                       ▼
+          +-------------------------+
+          |          JOS            |
+          |                         |
+          |  FOS-compatible         |
+          |  Userland               |
+          |                         |
+          |  Secure Boot Chain      |
+          +------------+------------+
+                       |
+                       |
+                       ▼
+               Imaging Workflows
+```
 
-INSTALLATION MODEL
+FOG remains unchanged.
 
-JOG is installed using Ubuntu Server autoinstall images with a first‑boot wizard.
+JOS replaces only the client boot environment.
 
-Two primary patterns are supported:
-- Interactive wizard on first boot (recommended for laptops)
-- Fully unattended single‑ISO installs (labs / VMs)
+---
 
-The wizard applies:
-- network configuration
-- EFI boot staging
-- dnsmasq rendering
-- native FOG installation
-- optional kiosk setup
+# Secure Boot Chain
 
-==================================================
+JOS uses a standard trust path already recognised by modern enterprise hardware.
 
-FOG INTEGRATION
+```text
+UEFI Firmware
+      ↓
+Microsoft-Signed Shim
+      ↓
+Canonical-Signed GRUB
+      ↓
+Canonical-Signed Linux Kernel
+      ↓
+JOS Runtime
+      ↓
+FOG Imaging Operations
+```
 
-FOG is installed natively under /opt/fog using the official installer.
+Benefits include:
 
-JOG does not containerise FOG.
+- No BIOS changes
+- No Secure Boot disablement
+- No custom PKI deployment
+- No MOK enrolment workflows
+- No machine-by-machine configuration
 
-JOG’s role is to:
-- prepare the environment
-- constrain where FOG listens
-- automate safe defaults
-- make the stack portable
+---
 
-==================================================
+# Repository Structure
 
-KIOSK MODE
+```text
+jos/
+├── build/
+│   └── build-from-fos.sh
+│
+├── initrd/
+│   └── retired shell implementation
+│
+├── docs/
+│   └── FOS parity checks
+│
+└── runtime components
 
-Optional kiosk mode launches a maximised Chromium session on X11 showing:
+scripts/
+├── jog-stage-jos-boot.sh
+├── jog-doctor.sh
+└── test-secureboot-vm.sh
 
-- FOG management interface
-- optional task or stats views
-- a local status dashboard
+docs/
+└── JOG-JOS-RESEARCH.md
+```
 
-This is designed for reliability on Intel laptops and avoids Wayland‑related instability.
+---
 
-==================================================
+# Key Components
 
-RELATIONSHIP TO OTHER PROJECTS
+## build-from-fos.sh
 
-JOG pairs directly with JOS clients.
+Builds JOS from the FOS environment and packages the resulting runtime.
 
-Together they form a portable imaging system that:
-- avoids corporate LAN impact
-- supports Secure Boot
-- scales from single laptops to small field teams
+Purpose:
 
-JOG may also surface its UI through NerveCentre when deployed in a fixed location.
+- Preserve compatibility
+- Reduce duplicated functionality
+- Keep behavioural parity with upstream FOS
 
-==================================================
+---
 
-STATUS
+## jog-stage-jos-boot.sh
 
-Active and operational.
+Stages the Secure Boot boot chain into the TFTP root.
 
-JOG is a field‑tested design that prioritises safety, predictability, and operator confidence over convenience.
+This includes:
 
-==================================================
+- Shim
+- GRUB
+- Kernel
+- JOS initrd
+- Matching modules
+- FOS-style boot menu
 
-FINAL NOTE
+---
 
-JOG exists so that doing the right thing is also the easiest thing.
+## jog-doctor.sh
 
-If imaging feels boring, it is working.
+Performs validation checks against the staged chain.
+
+Typical checks include:
+
+- Required files present
+- Correct boot ordering
+- Kernel/initrd consistency
+- Module availability
+
+---
+
+## test-secureboot-vm.sh
+
+Automated validation environment.
+
+Boots JOS within QEMU using:
+
+- UEFI firmware
+- Secure Boot enforcement
+- Known-good signed chain
+
+Also provides an unsigned-bootloader control test for validation.
+
+---
+
+## JOG-JOS-RESEARCH.md
+
+Primary research and decision log.
+
+Contains:
+
+- Secure Boot findings
+- Design rationale
+- Testing results
+- Open issues
+- Roll-out planning
+
+---
+
+# Compatibility Objective
+
+JOS is not attempting to reimagine FOG.
+
+The goal is complete functional parity.
+
+| Capability | FOS | JOS Target |
+|------------|-----|------------|
+| Host Registration | ✅ | ✅ |
+| Inventory Collection | ✅ | ✅ |
+| Image Deployment | ✅ | ✅ |
+| Image Capture | ✅ | ✅ |
+| Tasking | ✅ | ✅ |
+| Storage Communication | ✅ | ✅ |
+| Multicast Imaging | ✅ | ✅ |
+| Debug Shells | ✅ | ✅ |
+| Secure Boot Operation | ❌ | ✅ |
+| Zero-Touch Deployment | ✅ | ✅ |
+
+---
+
+# Engineering Risks
+
+## Upstream FOS Drift
+
+The largest long-term risk is behavioural divergence.
+
+If FOG introduces:
+
+- New fog.* scripts
+- Additional environment variables
+- Modified workflows
+- New task types
+
+JOS must maintain compatibility.
+
+For this reason, parity testing remains a primary engineering concern.
+
+---
+
+## Hardware Compatibility
+
+JOS inherits Ubuntu kernel support.
+
+Potential edge cases include:
+
+- RAID controllers
+- Legacy storage adapters
+- USB Ethernet devices
+- Vendor-specific hardware
+
+Any scenario where:
+
+```text
+Works in FOS
+Fails in JOS
+```
+
+must be treated as a defect.
+
+---
+
+## Kernel Lifecycle Management
+
+JOS is intentionally aligned with Canonical-supported kernels.
+
+This provides:
+
+- Strong hardware support
+- Security updates
+- Signed boot assets
+
+However, each LTS and HWE transition requires validation and regression testing.
+
+---
+
+# Relationship To JOG
+
+JOS forms the client-side runtime of the broader JOG ecosystem.
+
+JOG provides:
+
+- Portable Ubuntu appliance
+- Native FOG installation
+- Isolated PXE environment
+- Secure Boot-aware staging
+- Imaging workflow automation
+
+JOS provides:
+
+- Secure Boot-compatible client booting
+- FOS-compatible execution environment
+
+Together:
+
+```text
+JOG
+ ├─ Ubuntu
+ ├─ FOG
+ └─ JOS
+
+        +
+Modern UEFI Hardware
+
+        =
+Zero-Touch Secure Boot Imaging
+```
+
+---
+
+# Project Goals
+
+The project is considered successful when:
+
+- FOG cannot distinguish JOS from FOS
+- Secure Boot remains enabled
+- No custom keys are enrolled
+- Technicians require no additional training
+- Existing imaging workflows remain unchanged
+
+The ideal deployment experience is:
+
+```text
+Enable PXE Boot
+Press F12
+Select Network Boot
+Walk Away
+```
+
+---
+
+# Vision
+
+JOS is not a replacement for FOG.
+
+It is a compatibility layer that allows FOG to operate naturally in modern Secure Boot environments.
+
+The project prioritises:
+
+- Predictability over novelty
+- Compatibility over reinvention
+- Operational simplicity over technical cleverness
+
+The best compliment JOS can receive is:
+
+> "Nobody noticed it was there."
+
+Because if imaging feels boring, it is working.
