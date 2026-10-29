@@ -42,6 +42,10 @@ rm -rf "$W/root/lost+found"
 # (BusyBox init -> /etc/inittab -> rcS -> S99fog).
 cp "$HERE/jos-report-boot-facts.sh" "$W/root/jos-report-boot-facts.sh"
 chmod 0755 "$W/root/jos-report-boot-facts.sh"
+# "Boot from local disk" fallback: runs after udev/modules (S10/S11) and before the FOG client (S99fog), and only
+# acts when GRUB passed jos_localboot=1 (see scripts/jog-stage-jos-boot.sh).
+cp "$HERE/jos-localboot.sh" "$W/root/etc/init.d/S98jos-localboot"
+chmod 0755 "$W/root/etc/init.d/S98jos-localboot"
 cat >"$W/root/init" <<'INIT'
 #!/bin/busybox sh
 /bin/busybox mount -t devtmpfs devtmpfs /dev

@@ -39,7 +39,9 @@ FULL_DIRS="drivers/net/ethernet drivers/net/usb drivers/net/phy drivers/net/mdio
 drivers/nvme drivers/ata drivers/scsi drivers/md drivers/usb/storage drivers/usb/host drivers/usb/typec \
 drivers/thunderbolt drivers/mmc/host drivers/hid drivers/input/keyboard drivers/i2c/busses"
 FULL_EXTRA="vmd sd_mod sr_mod sg loop nfs nfsv3 nfsv4 vfat fat ext4 ntfs3 exfat xfs btrfs usbhid hid_generic i2c_hid_acpi \
-dm_mod dm_crypt usb_storage uas xhci_pci xhci_hcd ehci_pci uhci_hcd thunderbolt"
+dm_mod dm_crypt usb_storage uas xhci_pci xhci_hcd ehci_pci uhci_hcd thunderbolt \
+fuse f2fs hfsplus hfs jfs ext2 efivarfs squashfs overlay isofs udf cifs nbd loop zram \
+nls_utf8 nls_cp437 nls_iso8859-1 raid0 raid1 raid10 raid456 dm_raid"
 if [[ -n "${JOS_MODULES:-}" ]]; then MODULES="$JOS_MODULES"
 elif [[ "${JOS_PROFILE:-full}" == small ]]; then MODULES="$SMALL_MODULES"
 else
@@ -128,15 +130,35 @@ entry() { # title extra-args
   echo "set timeout=${JOS_GRUB_TIMEOUT:-5}"
   echo "insmod all_video"
   echo 'echo "JOS - Jonathan'"'"'s OS"'
+  # First entry (default): JOS repairs/creates the UEFI boot entries for the local disk's bootloaders, then
+  # reboots into them (jos/build/jos-localboot.sh). A bare GRUB `exit` or chainload does not help machines whose
+  # firmware has no local boot entry at all.
+  entry "0. Boot from local disk (create UEFI entry)" "jos_localboot=1"
   entry "1. JOS Image Deploy/Capture" ""
   if [[ -f "${INITRD%.img}.fos-tag" ]]; then
+    # Everything the stock FOG PXE menu offers that FOS itself implements (bin/fog `mode=` dispatch).
     entry "2. Full Host Registration and Inventory" "mode=manreg"
     entry "3. Quick Registration and Inventory" "mode=autoreg"
     entry "4. Client System Information (Compatibility)" "mode=sysinfo"
+    # Capone (FOG plugin): reads this machine's DMI value (JOS_CAPONE_DMI, default system-product-name), asks
+    # the server which image is mapped to it, and deploys it. Needs the Capone plugin installed and a mapping
+    # (Plugins > Capone) for the DMI value; the server side is not touched by this script.
+    entry "5. Auto-deploy image by hardware inventory (Capone)" "mode=capone dmi=${JOS_CAPONE_DMI:-system-product-name}"
+    entry "6. Debug Mode" "mode=onlydebug"
+    printf 'submenu "7. Advanced / Diagnostics" {\n'
+    entry "Disk Surface Test (badblocks)" "mode=badblocks"
+    entry "Test Disk (checkdisk)" "mode=checkdisk"
+    entry "Recover Files (PhotoRec)" "mode=photorec"
+    entry "Windows Password Reset (chntpw)" "mode=winpassreset"
+    entry "Wipe: fast" "mode=wipe wipemode=fast"
+    entry "Wipe: normal" "mode=wipe wipemode=normal"
+    entry "Wipe: full" "mode=wipe wipemode=full"
+    entry "Enroll Secure Boot key (FOS kernel only; unneeded under JOS)" "mode=enrollsb"
+    printf '}\n'
   fi
-  entry "5. JOS Debug (verbose, isdebug=yes)" "loglevel=7 isdebug=yes"
+  entry "8. JOS Debug (verbose, isdebug=yes)" "loglevel=7 isdebug=yes"
   if [[ -f "$TFTP/jos/memtest" ]]; then
-    printf 'menuentry "6. Memtest86+ (Needs Secure Boot off)" {\n    linux /jos/memtest\n}\n'
+    printf 'menuentry "9. Memtest86+ (Needs Secure Boot off)" {\n    linux /jos/memtest\n}\n'
   fi
 } >"$TFTP/grub/grub.cfg"
 log "staged into $TFTP: $(wc -w <<<"${want[*]}") modules ($(du -h "$TFTP/jos/modules.img" | cut -f1)), kernel ${KVER}"
