@@ -79,7 +79,7 @@ Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Pl
 | Network isolation of imaging services (USB NIC, nftables) | Partial | Static isolation exists; active production-network detection is Planned |
 | Kiosk and appliance installer | Partial | Wizard and autoinstall exist; `jog-setup` and `jog.yaml` are Planned |
 | `jog-doctor` | Partial | Checks the staged TFTP boot chain only |
-| Operations Centre | Planned | Status page exists; the requirements below are not built |
+| Operations Centre | Partial | Live imaging view built (queued/imaging/complete/failed, per-device progress; needs FOG API tokens, verified with demo and mock data, not a live task). Remaining requirements below are not built |
 | Provisioning framework, directory join, BitLocker, drivers, analytics | Planned | Nothing built |
 
 ---
