@@ -1,4 +1,4 @@
-# JOS — a Secure Boot-compatible replacement for FOS
+# JOS (Jonathan's OS) — a Secure Boot-compatible replacement for FOS
 
 Type: Infrastructure | Intent: Pillar | Audience: Sysadmins
 
