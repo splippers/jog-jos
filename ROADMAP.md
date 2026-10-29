@@ -140,7 +140,8 @@ JOS runs the unmodified FOS userland under a Canonical-signed kernel, so most pa
 | Capone (image by hardware) | Done |
 | Boot from local disk | Done |
 | Secure Boot key enrolment (FOS kernel) | Not needed under JOS |
-| Join multicast session, deploy image menu, quick host deletion, approve host, update product key | Planned: needs GRUB equivalents of the FOG iPXE menu items |
+| Deploy image (login, choose image), join multicast session, update product key | Done: console clients calling the same `boot.php` endpoint; failure paths tested, success paths need a registered host and credentials on hardware |
+| Quick host deletion, approve host | Not present in the FOG server version the appliance installs, so nothing to replicate; re-check on FOG upgrades |
 | Memtest | Open: unsigned, so Secure Boot must be off |
 | Wireless and GPU drivers | Not applicable to imaging |
 
