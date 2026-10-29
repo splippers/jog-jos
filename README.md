@@ -1,4 +1,4 @@
-# JOS (Jonathan's OS)
+# JOG (Jonathan's Opensource Ghost) JOS (Jonathan's OS)
 
 > A Secure Boot-compatible replacement for FOS that preserves FOG workflows while eliminating the need for per-device key enrolment.
 
