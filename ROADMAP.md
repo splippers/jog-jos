@@ -51,6 +51,65 @@ Walk away.
 
 ---
 
+# Repositories and Ownership
+
+The project is split across three repositories. Each roadmap item belongs to exactly one.
+
+| Repo | Owns | Runs on |
+|---|---|---|
+| [`jos`](https://github.com/splippers/jos) | The client runtime: Secure Boot boot chain, initrd, GRUB menu, FOS parity, local-boot fallback, hardware (driver) support | the machine being imaged |
+| [`jog`](https://github.com/splippers/jog) | The appliance: installer, FOG, DHCP/TFTP, network safety, Operations Centre, `jog-doctor`, configuration | the imaging laptop |
+| [`jog-jos`](https://github.com/splippers/jog-jos) | Integration: pins `jog` and `jos`, end-to-end tests, this roadmap, research | n/a |
+| *(proposed)* `jog-provisioner` | The Windows-side provisioning service and the directory join broker (see Provisioning Framework) | the imaged machine / corporate network |
+
+---
+
+# Status at a Glance
+
+Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Planned** · **Open** (design decision needed).
+
+| Area | Status | Notes |
+|---|---|---|
+| Secure Boot chain (shim → signed GRUB → signed kernel → JOS) | Done | Validated in the QEMU Secure Boot VM test; real-hardware validation ongoing |
+| FOS userland and FOG protocol compatibility | Done | JOS runs the unmodified FOS userland |
+| FOS menu modes (register, inventory, debug, wipe, disk tests, PhotoRec, password reset) | Done | Staged by `jos/scripts/jos-stage-boot.sh` |
+| Hardware-inventory image selection (Capone) | Done | Needs the Capone plugin and mappings on the FOG server |
+| Boot from local disk when the firmware has no entry | Done | `jos-localboot.sh` creates UEFI entries from local ESPs |
+| Local disk first in UEFI boot order after imaging | Done | Post-download script on the FOG server |
+| Network isolation of imaging services (USB NIC, nftables) | Partial | Static isolation exists; active production-network detection is Planned |
+| Kiosk and appliance installer | Partial | Wizard and autoinstall exist; `jog-setup` and `jog.yaml` are Planned |
+| `jog-doctor` | Partial | Checks the staged TFTP boot chain only |
+| Operations Centre | Planned | Status page exists; the requirements below are not built |
+| Provisioning framework, directory join, BitLocker, drivers, analytics | Planned | Nothing built |
+
+---
+
+# Roadmap Phases
+
+**Now: JOS parity and hardening.** Everything here gates the rest.
+- Full FOS/FOG feature parity, proven on hardware (see JOS below).
+- Hardware coverage: signed-module support for the NICs and storage controllers in use.
+- Align the existing appliance with this document (DHCP lease, doctor checks, configuration).
+
+*Exit criteria:* every parity item passes on at least one Secure Boot machine per supported vendor, and a Secure Boot VM test runs in CI.
+
+**Next: Appliance platform.**
+- `jog.yaml` configuration and `jog-setup`, with `jog.env` migrated.
+- Network Safety Framework: production-network detection, lockdown and recovery.
+- Operations Centre: status header, storage, imaging metrics, audit log.
+- Extended `jog-doctor`.
+
+*Exit criteria:* a technician can install, configure and monitor an appliance without editing files.
+
+**Later: Provisioning.**
+- Provisioning service and state machine, naming, drivers.
+- Directory join and group assignment via the join broker.
+- BitLocker, escrow, fleet analytics.
+
+*Exit criteria:* a device moves from blank disk to `COMPLETE` with no technician input beyond booting it.
+
+---
+
 # Core Components
 
 ## JOS
@@ -64,6 +123,28 @@ Responsibilities:
 - Imaging platform compatibility
 - Hardware support
 - Secure Boot operation
+
+### Hard requirement: full FOS and FOG compatibility
+
+Secure Boot support is the reason JOS exists. It must be the **only** difference from FOS. Anything FOS can do, JOS must do, and the FOG server must not need to know the difference. A parity gap is a bug, not a limitation.
+
+JOS runs the unmodified FOS userland under a Canonical-signed kernel, so most parity comes from the userland. The remaining risk is the kernel: FOS builds its drivers into its own kernel, while JOS must supply signed modules for every device. Parity is tracked in `jos/docs/fos-fog-parity-checklist.md`.
+
+| Capability | Status |
+|---|---|
+| Unicast deploy and capture (partclone, all filesystems partclone supports) | Done, hardware proof pending |
+| Multicast deploy (udpcast) | Done, hardware proof pending |
+| Host registration (full, quick) and inventory | Done |
+| System information, debug mode, send/restore debug | Partial: debug mode done; send/restore debug menu entries Planned |
+| Disk wipe (fast, normal, full), surface test, Test Disk, PhotoRec, Windows password reset | Done |
+| Capone (image by hardware) | Done |
+| Boot from local disk | Done |
+| Secure Boot key enrolment (FOS kernel) | Not needed under JOS |
+| Join multicast session, deploy image menu, quick host deletion, approve host, update product key | Planned: needs GRUB equivalents of the FOG iPXE menu items |
+| Memtest | Open: unsigned, so Secure Boot must be off |
+| Wireless and GPU drivers | Not applicable to imaging |
+
+Compatibility is verified against the FOG version the appliance installs, and re-verified whenever the FOS release pin is bumped.
 
 ---
 
@@ -143,8 +224,6 @@ DRIVERS_INSTALLED
     ↓
 HOSTNAME_ASSIGNED
     ↓
-BITLOCKER_CONFIGURED
-    ↓
 ENTERPRISE_READY
     ↓
 DIRECTORY_JOINED
@@ -153,12 +232,16 @@ GROUPS_ASSIGNED
     ↓
 POLICIES_APPLIED
     ↓
+BITLOCKER_CONFIGURED
+    ↓
 ESCROW_VERIFIED
     ↓
 COMPLETE
 ```
 
 Each transition should be auditable.
+
+**Ordering rule:** BitLocker is enabled only after a successful directory join, so that recovery keys can be escrowed to the directory as part of the same step. `BITLOCKER_CONFIGURED` is never reached before `DIRECTORY_JOINED`. A device waiting in `ENTERPRISE_READY` is therefore not yet encrypted (see Open Questions).
 
 ---
 
@@ -235,6 +318,12 @@ Archive Logs
 Shutdown
 ```
 
+Hardening requirements:
+
+- The account password is random and unique per device, never a shared or fixed value.
+- It must not be stored in plain text (for example the `DefaultPassword` registry value); use an LSA-secret-based mechanism.
+- The account has a hard expiry, so a device that never reaches a corporate network does not keep an administrator autologon indefinitely. Devices that expire in `ENTERPRISE_READY` disable the account and require a technician to resume provisioning.
+
 ---
 
 # Device Naming Framework
@@ -294,15 +383,32 @@ Configuration example:
 directory_services:
     domain: corp.example.local
 
-    join_account:
-        username: svc_join
-        password: encrypted
+    credential:
+        method: broker          # broker | offline_join | stored
+        reference: jog-join     # name of a sealed credential, never the secret itself
 
     target_container:
         Provisioning
 ```
 
 JOG should support deferred joining where directory services are unavailable.
+
+## Directory Credential Handling
+
+The account that joins computers and adds them to groups is the most sensitive secret in the system. Rules:
+
+- No privileged directory credential is ever placed in an image, in the FOG database, in `Provisioning.json`, in `jog.yaml`, in `jog.env`, or in version control.
+- An imaged device never holds a reusable credential. Whatever it holds must be useless after the join.
+- The account is delegated least-privilege: create computer objects in the target container only, and add members to the named groups only. It is never a domain admin.
+- Use of the credential is audited.
+
+Proposed methods, in order of preference:
+
+1. **Join broker (recommended).** A small service on the corporate network (or on the appliance while it is connected) holds the delegated account. A device proves its identity with a one-time, per-device token issued at imaging time, and asks the broker to join it and add it to groups. The device never sees the credential. This is the only method that also covers group assignment without giving the device privilege.
+2. **Offline domain join.** Computer accounts are pre-created and exported with `djoin /provision`; the blob contains only the machine account secret. No privileged credential reaches the device or the appliance, but device names must be known in advance.
+3. **Stored credential (fallback).** The account is kept on the appliance, sealed to its TPM (for example with `systemd-creds`) or protected by a passphrase entered at boot, readable by root only, and delivered to the device over TLS at join time, then discarded. Weakest option; document the exposure if used.
+
+Which method ships first is an open decision (see Open Questions).
 
 ---
 
@@ -316,9 +422,10 @@ Workflow:
 Image
 Drivers
 Hostname
-BitLocker
 Shutdown
 ```
+
+BitLocker is deferred until the device has joined the directory.
 
 Result:
 
@@ -349,6 +456,8 @@ BitLocker
 Escrow
 Complete
 ```
+
+BitLocker only runs once the directory join has succeeded.
 
 Requires:
 
@@ -453,6 +562,10 @@ Default configuration:
 TPM + PIN
 ```
 
+BitLocker is enabled only after `DIRECTORY_JOINED`, and `COMPLETE` requires `ESCROW_VERIFIED`: the recovery key must be confirmed in the directory before the device is considered done.
+
+Auto-generated PINs need a defined delivery path (to the device owner, not stored on the appliance). Until that is designed, `auto_generate` is a placeholder.
+
 Capabilities:
 
 ```text
@@ -504,6 +617,8 @@ Primary configuration file:
 ```text
 /etc/jog/jog.yaml
 ```
+
+*Current state:* the appliance is configured through `/etc/jog/jog.env` and `installer/jog-install-wizard.sh`. `jog.yaml` and `jog-setup` are Planned in the Next phase. `jog.env` stays supported until a migration tool converts it, so existing appliances keep working.
 
 Categories:
 
@@ -562,6 +677,8 @@ Generates a complete appliance configuration.
 ---
 
 # JOG Doctor
+
+*Current state:* `jog-doctor` exists and checks the staged TFTP boot chain (shim, GRUB, signed kernel, initrd, modules, kernel/module match). The checks below are the Planned extension.
 
 Command:
 
@@ -630,6 +747,8 @@ Imaging Interface
 ---
 
 ## Corporate Network Monitoring
+
+Detection is passive wherever possible. Active probes (for example a DHCP discover) can themselves disturb a production network and must be opt-in. The signals that trigger lockdown must be listed in the configuration, and the design must state how false positives and false negatives are handled.
 
 JOG continuously evaluates:
 
@@ -735,6 +854,8 @@ Default lease duration:
 ```text
 5 Minutes
 ```
+
+*Current state:* the appliance ships with a 12-hour lease (`JOG_DHCP_LEASE_HOURS=12`). Moving to 5 minutes is a Planned change in `jog`; the lease length becomes configurable and the default changes with the `jog.yaml` migration.
 
 Example:
 
@@ -1026,6 +1147,22 @@ Average Provisioning Time
 
 Estimated Technician Time Saved
 ```
+
+---
+
+# Open Questions
+
+Decisions needed before the Later phase starts:
+
+1. **Directory credential method:** which of broker, offline join or stored credential ships first, and who operates the broker.
+2. **FOG Client overlap:** FOG's own client and snapins already handle hostname, directory join and post-image tasks. Decide whether the provisioner builds on them or replaces them, and how the two coexist so they do not fight over the hostname or the join.
+3. **Devices at rest before join:** a device waiting in `ENTERPRISE_READY` is unencrypted and may hold an autologon account. Decide whether a TPM-only BitLocker interim state is acceptable, or whether such devices are kept physically controlled.
+4. **BitLocker PIN delivery:** how an auto-generated PIN reaches the device owner without being stored on the appliance, and what happens in isolated mode where no escrow target exists.
+5. **Recovery key storage in isolated mode:** if keys are ever held on the appliance, how that store is encrypted and who can read it.
+6. **Where the provisioner lives:** a new `jog-provisioner` repo or a directory inside `jog`.
+7. **Non-Windows images:** the provisioning section is Windows-specific. Decide whether Linux images are in scope.
+8. **Hardware coverage policy:** which vendors and models JOS must support, and how new NIC and storage drivers are added and signed-module-verified.
+9. **Testing:** the provisioner needs a test strategy (virtual machines with a lab directory) alongside the existing Secure Boot VM test.
 
 ---
 
