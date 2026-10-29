@@ -158,97 +158,36 @@ Benefits include:
 
 # Repository Structure
 
+This repo is the **integration point** for two separate repos, included as git submodules and pinned to known-good commits:
+
+| Submodule | Repo | Role |
+|---|---|---|
+| `jog/` | [splippers/jog](https://github.com/splippers/jog) | **Server side.** The Ubuntu imaging laptop: autoinstall, FOG install, isolated DHCP/TFTP, kiosk, `jog-doctor.sh`. |
+| `jos/` | [splippers/jos](https://github.com/splippers/jos) | **Client side.** The Secure Boot-compatible FOS replacement: `build/build-from-fos.sh`, GRUB menu and `scripts/jos-stage-boot.sh`, local-boot fallback, `scripts/test-secureboot-vm.sh`, FOS parity checklist. |
+| `docs/JOG-JOS-RESEARCH.md` | this repo | Research and decision log: Secure Boot findings, design rationale, test results, roll-out plan. |
+
 ```text
-jos/
-├── build/
-│   └── build-from-fos.sh
-│
-├── initrd/
-│   └── retired shell implementation
-│
-├── docs/
-│   └── FOS parity checks
-│
-└── runtime components
-
-scripts/
-├── jog-stage-jos-boot.sh
-├── jog-doctor.sh
-└── test-secureboot-vm.sh
-
-docs/
-└── JOG-JOS-RESEARCH.md
+jog-jos/
+├── jog/     laptop: installs and configures FOG, dnsmasq/TFTP, kiosk
+├── jos/     client: builds the initrd, stages the signed boot chain
+└── docs/    cross-cutting research
 ```
 
----
+**Which repo do I change?** If it installs or configures something on the laptop, it goes in `jog`. If it runs on, or builds for, the machine being imaged, it goes in `jos`. If it is about how the two fit together, it goes here.
 
-# Key Components
+**Typical flow**
 
-## build-from-fos.sh
+```bash
+git clone --recurse-submodules https://github.com/splippers/jog-jos.git && cd jog-jos
+jos/build/build-from-fos.sh                          # build jos/build/out/initrd.img
+sudo JOS_DIR=$PWD/jos jog/install/jog-install.sh     # install the laptop stack
+sudo jog-stage-jos-boot.sh                           # stage shim, GRUB, signed kernel, initrd, modules, menu
+jog/scripts/jog-doctor.sh                            # validate
+```
 
-Builds JOS from the FOS environment and packages the resulting runtime.
+**Updating a pin:** `git -C jos pull origin main && git add jos && git commit -m "Bump jos"` (same for `jog`).
 
-Purpose:
-
-- Preserve compatibility
-- Reduce duplicated functionality
-- Keep behavioural parity with upstream FOS
-
----
-
-## jog-stage-jos-boot.sh
-
-Stages the Secure Boot boot chain into the TFTP root.
-
-This includes:
-
-- Shim
-- GRUB
-- Kernel
-- JOS initrd
-- Matching modules
-- FOS-style boot menu
-
----
-
-## jog-doctor.sh
-
-Performs validation checks against the staged chain.
-
-Typical checks include:
-
-- Required files present
-- Correct boot ordering
-- Kernel/initrd consistency
-- Module availability
-
----
-
-## test-secureboot-vm.sh
-
-Automated validation environment.
-
-Boots JOS within QEMU using:
-
-- UEFI firmware
-- Secure Boot enforcement
-- Known-good signed chain
-
-Also provides an unsigned-bootloader control test for validation.
-
----
-
-## JOG-JOS-RESEARCH.md
-
-Primary research and decision log.
-
-Contains:
-
-- Secure Boot findings
-- Design rationale
-- Testing results
-- Open issues
-- Roll-out planning
+The previous combined tree is preserved at tag `pre-split`.
 
 ---
 

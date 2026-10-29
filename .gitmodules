@@ -1,0 +1,6 @@
+[submodule "jog"]
+	path = jog
+	url = https://github.com/splippers/jog.git
+[submodule "jos"]
+	path = jos
+	url = https://github.com/splippers/jos.git
