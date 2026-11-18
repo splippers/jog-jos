@@ -85,6 +85,22 @@ The appliance-side pieces are already installed:
    `udp-sender` transmits as soon as the tenth receiver joins; with ten
    machines already at the menu that is seconds, not the 180 s fallback.
 
+6. **Read the queue screen.** While a client waits for the session to fill it
+   shows a full-screen navy console view instead of FOG's repeating
+   `Attempting to check in ... Failed` lines. Panels:
+
+   | Panel | Contents |
+   | --- | --- |
+   | `JOB` | hostname, assigned image, task name |
+   | `LINK` | interface, negotiated speed and duplex, RX/TX errors |
+   | `QUEUE` | session name/image, clients joined vs required, check-in reason, wait elapsed/max, progress bar |
+   | `SURROUNDING SYSTEMS` | appliance host and imaging IP, FOG multicast/DHCP/NFS, mobile/imaging/model API health |
+
+   The screen refreshes every 3 s and is replaced by Partclone's own progress
+   display as soon as check-in succeeds. If it shows `Check-in: waiting for
+   server` the appliance feed is unreachable; if `Joined` never reaches the
+   required count, the remaining laptops have not booted into the session.
+
 ---
 
 ## After the run
