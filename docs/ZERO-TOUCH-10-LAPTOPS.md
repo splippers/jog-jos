@@ -129,6 +129,7 @@ creates a fresh one.
 | Console says `AMBIGUOUS ...` | More than one joinable multicast session. Run `sudo jog-zero-touch-arm` to retire stale ones. |
 | Console says `NONE` | No armed session. Run `sudo jog-zero-touch-arm`. |
 | Console says `ERROR host not registered` | Endpoint file is stale. Reinstall: `sudo jog-autojoin-setup --apply`. |
+| Client reboots immediately, never reaches the queue screen | A previous multicast task was left in an in-progress state, so autojoin answers `OK TASK` and `hostinfo` has no live session to return. The endpoint now retires such tasks automatically; if it persists, check `SELECT taskID,taskStateID FROM tasks WHERE taskHostID=<id>` and re-arm. |
 | `Interface not ready, waiting...` in multicast.log | `FOG_WEB_HOST` must be `10.99.0.1` and `ip -4 addr` must list it. Restart `FOGMulticastManager.service`. |
 | Sender dies immediately with `execute() on false` | Transient fork/DB race. `sudo systemctl restart FOGMulticastManager.service`, then re-arm. |
 | Transfer stalls | Slowest disk decides. Check `nginx`/NFS, switch IGMP snooping, and that no client is on a 10 Mb/s port. |
