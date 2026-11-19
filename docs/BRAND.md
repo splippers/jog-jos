@@ -18,7 +18,7 @@ Do not call the appliance "JOS" or the runtime "JOG". The two names are the prod
 
 Primary:
 
-> **Corporate reimaging, without the licence bill.**
+> **Corporate reimaging, without per-device imaging fees.**
 
 Supporting:
 

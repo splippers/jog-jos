@@ -4,7 +4,7 @@
 
 <h1 align="center">JOG + JOS</h1>
 
-<p align="center"><strong>Corporate reimaging, without the licence bill.</strong></p>
+<p align="center"><strong>Corporate reimaging, without per-device imaging fees.</strong></p>
 
 <p align="center">
   A free, portable, Secure Boot imaging appliance built on Ubuntu, FOG, and JOS.<br>
@@ -28,7 +28,7 @@
 **JOG** is the appliance: an Ubuntu laptop that runs stock FOG on an isolated imaging network, with a
 kiosk, a guided installer, and a driver share. **JOS** is the client runtime: the Secure Boot-compatible
 replacement for FOG's FOS that boots on the machine being imaged. Together they turn a blank corporate
-laptop into a domain-joined, policy-ready, encrypted asset without a per-device licence.
+laptop into a domain-joined, policy-ready, encrypted asset without per-device imaging fees.
 
 The design goal is deliberately ambitious:
 
@@ -64,7 +64,7 @@ minutes including reboots. The imaging math and the network checklist are in
 
 Corporate device refreshes are expensive for reasons that have little to do with hardware:
 
-- Imaging tools are licensed per device or per technician.
+- Imaging tools are often licensed per device or per technician (Windows itself still needs a valid licence; see Licensing below).
 - Secure Boot forces a choice between disabling it, enrolling a custom key on every machine, or buying
   another platform.
 - Drivers, domain join, group membership, and BitLocker are usually four separate manual steps.
@@ -214,7 +214,12 @@ it touches production devices.
 
 ---
 
-## Licence
+## Licensing
 
-MIT. FOG is GPL-3; JOS builds on the unmodified FOG userland and ships the FOG client code under its own
-licence. See each repository's `LICENSE` for details.
+- **JOG, JOS and the scripts in these repositories are MIT** (see `LICENSE` in each).
+- **Third-party software is not redistributed here.** FOG and FOS (GPL-3), Ubuntu, the Linux kernel, GRUB,
+  partclone, udpcast, Memtest86+ and the rest are downloaded from their upstream sources when you build or
+  install, and stay under their own licences. The full list is in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+- **Windows is not included or licensed by JOG.** You must hold valid licences for every Windows image you
+  deploy. Never share images or keys.
+- JOG is independent of and not endorsed by Canonical, the FOG Project or Microsoft.
