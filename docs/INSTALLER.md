@@ -40,19 +40,17 @@ jog-installer (your download, MIT)
 - `install/fog-native-install.sh`: clones FOG and runs its official installer.
 - A cloud-init seed ISO and Hyper-V single-ISO builder for hands-off installs.
 
-## Gaps to close (in priority order)
+## Status of the gaps
 
-1. **Fail closed on checksums.** `fetch-ubuntu-live-server-iso.sh` prints a warning and continues if
-   `SHA256SUMS` cannot be fetched. It should abort.
-2. **Verify the signature, not just the checksum.** `SHA256SUMS` comes from the same server as the ISO. Verify
-   `SHA256SUMS.gpg` against Ubuntu's published signing key.
-3. **Pin FOG.** `fog-native-install.sh` clones a branch (`FOG_GIT_REF`), which moves. Pin a release tag and a
-   commit hash, and bump it deliberately after the VM test.
-4. **Pin JOG itself.** Autoinstall does `git clone` of the default branch. Install a tagged release with a
-   checksum instead, so a customer's install is reproducible.
-5. **Licence acceptance and notices step.** Does not exist yet (step 1 and 5 above).
-6. **Retire the legacy static-binary fetchers** (`fetch-curl/hwinfo/lshw`), which pull from individual
-   third-party GitHub accounts without a pinned checksum.
+| # | Gap | Status |
+|---|---|---|
+| 1 | Fail closed on checksums | **Done.** `fetch-ubuntu-live-server-iso.sh` aborts if the signed checksums cannot be fetched or do not match. |
+| 2 | Verify the signature, not just the checksum | **Done.** SHA256SUMS must be signed by the pinned Ubuntu CD signing key (fingerprint in the script). Tested with the real ISO, a bad file, and a wrong key. `--verify-only` checks an existing ISO. |
+| 3 | Pin FOG | **Done.** Release tag `1.5.10.2518`, commit `c97e2050...` checked after the clone (verified against upstream). Move it by changing tag and commit together after the VM test. |
+| 4 | Pin JOG itself | **Mechanism done, release tag still to cut.** Autoinstall clones `installer/JOG_REF`. It is `main` for now, and the renderer warns. Tag a release (for example `v0.1.0`), set `JOG_REF`, and installs become reproducible. |
+| 5 | Licence acceptance and notices step | **To do.** |
+| 6 | Retire the legacy static-binary fetchers (`fetch-curl/hwinfo/lshw`) | **To do.** The default FOS-based build does not use them. |
+| 7 | Pin and verify FOS | Already done: `build-from-fos.sh` pins `FOS_TAG` and verifies the `.sha256`. Note this is a checksum from the same host as the file, so it detects corruption, not a compromised release. |
 
 ## Open decisions
 
