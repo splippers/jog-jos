@@ -1,8 +1,8 @@
 # Third-party notices
 
-Brume and JOS are MIT-licensed (see `LICENSE`). They **use** the third-party software below but this repository
+Haar and JOS are MIT-licensed (see `LICENSE`). They **use** the third-party software below but this repository
 does **not** contain or redistribute it. Each component is downloaded from its upstream source on the
-machine that builds or installs Brume, and stays under its own licence.
+machine that builds or installs Haar, and stays under its own licence.
 
 > This table is a working list, not legal advice. The authoritative licence text for each Ubuntu package is
 > its `/usr/share/doc/<package>/copyright` file; for pinned upstream releases it is the licence file in the
@@ -47,20 +47,20 @@ Do not ship a product that does until each binary is pinned by checksum or repla
 
 ## Not included, and not licensed to you by this project
 
-- **Windows.** Brume images machines; it does not supply, activate or license Windows. Customers must hold
+- **Windows.** Haar images machines; it does not supply, activate or license Windows. Customers must hold
   valid licences for every image they deploy (for example volume licensing with KMS or MAK activation).
   OEM licences are normally tied to the device they shipped with. Never distribute Windows images or keys.
-- **Drivers.** Vendor driver packs (for example Dell) carry the vendor's terms. Brume syncs them on the
+- **Drivers.** Vendor driver packs (for example Dell) carry the vendor's terms. Haar syncs them on the
   customer's own appliance and does not redistribute them.
 
 ## Trademarks
 
 Ubuntu and Canonical are trademarks of Canonical Ltd. FOG is a project of the FOG Project. Microsoft, Windows,
-BitLocker and Entra are trademarks of Microsoft. Brume and JOS are independent and are not affiliated with or
+BitLocker and Entra are trademarks of Microsoft. Haar and JOS are independent and are not affiliated with or
 endorsed by any of them. "Based on Ubuntu" is a factual description, not a claim of endorsement.
 
 ## Source offer
 
-For any GPL component that Brume installs or packages, the corresponding source is available from the upstream
-location listed above (pinned to the exact version used). If you receive a Brume-built image and cannot obtain
+For any GPL component that Haar installs or packages, the corresponding source is available from the upstream
+location listed above (pinned to the exact version used). If you receive a Haar-built image and cannot obtain
 the source from upstream, contact the maintainer.

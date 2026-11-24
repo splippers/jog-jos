@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 import json, os, re, sys
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-names = [r'\bMIST\b', r'\bMISTMETRY\b', r'\bWISP\b', r'\bJOG\b', r'\bJOGEMETRY\b', r"Jonathan's"]
-allow = {'brand/brand.env','brand/brand.json','MIGRATION.md','REBRAND.md','scripts/rebrand-check','docs/JOG-JOS-RESEARCH.md','docs/BRAND.md','docs/archive/REBRAND-MIST-2026-11-24.md'}
+names = [
+    re.compile(r'\b(MIST|MISTMETRY|WISP|BRUME|BRUMETRY)\b', re.I),   # retired names, any case
+    re.compile(r'(?<![\\=A-Za-z])(JOG|JOGEMETRY)\b(?![-\\])'),      # old public names; identifiers like ProgramData\JOG, OU=JOG, JOG-<mac> are allowed
+    re.compile(r"Jonathan's"),
+]
+allow = {'brand/brand.env','brand/brand.json','REBRAND.md','scripts/rebrand-check','docs/archive/REBRAND-MIST-2026-11-24.md'}
 bad=[]
 for dp,ds,fs in os.walk(root):
     ds[:] = [d for d in ds if d not in ['.git','build','.gradle','node_modules','__pycache__']]
@@ -15,8 +19,8 @@ for dp,ds,fs in os.walk(root):
         if b'\0' in b[:4096]: continue
         s=b.decode('utf-8',errors='ignore')
         for n in names:
-            if re.search(n,s):
-                bad.append(f'{rel}: {n}')
+            if n.search(s):
+                bad.append(f'{rel}: {n.pattern}')
                 break
 if bad:
     print('rebrand-check failed:')

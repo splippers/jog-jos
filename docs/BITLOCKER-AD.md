@@ -5,7 +5,7 @@
 > probably where the "6-digit PIN" wording comes from. AD has no supported attribute for a BitLocker
 > startup PIN, and storing one there would be a security anti-pattern.
 
-This document explains exactly what AD stores, where it lives, how Brume escrows it, and what to do if the
+This document explains exactly what AD stores, where it lives, how Haar escrows it, and what to do if the
 organisation insists on a TPM + PIN design.
 
 ---
@@ -16,7 +16,7 @@ When BitLocker recovery information is backed up to Active Directory, Windows cr
 `msFVE-RecoveryInformation` object **under the computer object**:
 
 ```text
-CN=LT-SITE01-ABC1234,OU=Workstations,OU=Brume,DC=corp,DC=example,DC=com
+CN=LT-SITE01-ABC1234,OU=Workstations,OU=JOG,DC=corp,DC=example,DC=com
 └── CN={GUID},CN=LT-SITE01-ABC1234,...
     ├── msFVE-RecoveryPassword   ← the 48-digit recovery password
     ├── msFVE-RecoveryGuid       ← identifies the key protector
@@ -56,9 +56,9 @@ The two are different protectors and serve different purposes. Only the second i
 
 ---
 
-## 2. The recommended Brume design
+## 2. The recommended Haar design
 
-Brume defaults to **TPM-only BitLocker** for corporate laptops:
+Haar defaults to **TPM-only BitLocker** for corporate laptops:
 
 ```text
 TPM protector
@@ -95,7 +95,7 @@ Use TPM + PIN, but treat the PIN as a **user-held secret**:
 - Escrow only the **recovery password** to AD/Entra ID.
 - Do not write the PIN to AD.
 
-Brume supports `Mode = TpmPin` with `PinStorage = None` or `PinStorage = LocalDPAPI`. The PIN can be written
+Haar supports `Mode = TpmPin` with `PinStorage = None` or `PinStorage = LocalDPAPI`. The PIN can be written
 to a DPAPI-protected local file for the provisioning window, then removed. It is never sent to the
 appliance.
 
@@ -124,7 +124,7 @@ Both store the PIN in **cleartext** in the directory (AD does not encrypt arbitr
 with read access to the computer object can read it. Replication, backups, and monitoring tools copy it.
 This is a real security risk, not a theoretical one.
 
-Brume therefore gates this behind an explicit switch:
+Haar therefore gates this behind an explicit switch:
 
 ```json
 "BitLocker": {

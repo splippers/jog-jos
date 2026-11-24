@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-# Brume / JOS Roadmap
+# Haar / JOS Roadmap
 
 > A Secure Boot-capable, FOG-compatible deployment platform designed to transform a blank device into an enterprise-ready asset with minimal technician intervention, complete transparency, and strong operational safeguards.
 
@@ -10,7 +10,7 @@
 
 All domains, hostnames, site codes, organisational units, group names, IP ranges, and other identifiers referenced in this document are examples only.
 
-Brume is designed to be:
+Haar is designed to be:
 
 - Organisation agnostic
 - Directory agnostic
@@ -23,7 +23,7 @@ Deployment-specific values should always be supplied through appliance configura
 
 # Vision
 
-Brume exists to make enterprise device deployment:
+Haar exists to make enterprise device deployment:
 
 - Predictable
 - Repeatable
@@ -31,7 +31,7 @@ Brume exists to make enterprise device deployment:
 - Secure
 - Low-touch
 
-Brume is not intended to replace existing imaging platforms.
+Haar is not intended to replace existing imaging platforms.
 
 Instead it extends and modernises them by providing:
 
@@ -53,15 +53,14 @@ Walk away.
 
 # Repositories and Ownership
 
-The project is split across four repositories. Each roadmap item belongs to exactly one.
+The project is split across three repositories. Each roadmap item belongs to exactly one.
 
 | Repo | Owns | Runs on |
 |---|---|---|
 | [`jos`](https://github.com/splippers/jos) | The client runtime: Secure Boot boot chain, initrd, GRUB menu, FOS parity, local-boot fallback, hardware (driver) support | the machine being imaged |
-| [`mist`](https://github.com/splippers/mist) | The appliance: installer, FOG, DHCP/TFTP, network safety, Operations Centre, `mist-doctor`, configuration | the imaging laptop |
-| [`mistmetry`](https://github.com/splippers/mistmetry) *(private)* | Technician Android app, enrollment, authenticated mobile API, monitoring and confirmed controls | the phone and Brume appliance |
-| [`jog-jos`](https://github.com/splippers/jog-jos) | Integration: pins `mist` and `jos`, end-to-end tests, this roadmap, research | n/a |
-| *(proposed)* `mist-provisioner` | The Windows-side provisioning service and the directory join broker (see Provisioning Framework) | the imaged machine / corporate network |
+| [`jog`](https://github.com/splippers/jog) | The appliance: installer, FOG, DHCP/TFTP, network safety, Operations Centre, `jog-doctor`, configuration | the imaging laptop |
+| [`jog-jos`](https://github.com/splippers/jog-jos) | Integration: pins `jog` and `jos`, end-to-end tests, this roadmap, research | n/a |
+| *(proposed)* `jog-provisioner` | The Windows-side provisioning service and the directory join broker (see Provisioning Framework) | the imaged machine / corporate network |
 
 ---
 
@@ -78,12 +77,10 @@ Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Pl
 | Boot from local disk when the firmware has no entry | Done | `jos-localboot.sh` creates UEFI entries from local ESPs |
 | Local disk first in UEFI boot order after imaging | Done | Post-download script on the FOG server |
 | Network isolation of imaging services (USB NIC, nftables) | Partial | Static isolation exists; active production-network detection is Planned |
-| Kiosk and appliance installer | Partial | Wizard and autoinstall exist; `mist-setup` and `mist.yaml` are Planned |
-| `mist-doctor` | Partial | Checks the staged TFTP boot chain only |
+| Kiosk and appliance installer | Partial | Wizard and autoinstall exist; `jog-setup` and `jog.yaml` are Planned |
+| `jog-doctor` | Partial | Checks the staged TFTP boot chain only |
 | Operations Centre | Partial | Live imaging view built (queued/imaging/complete/failed, per-device progress; needs FOG API tokens, verified with demo and mock data, not a live task). Remaining requirements below are not built |
 | Provisioning framework, directory join, BitLocker, drivers, analytics | Planned | Nothing built |
-| Mistmetry mobile management | Partial | Android dashboard and confirmed FOG controls exist; hidden-Wi-Fi setup, one-time bootstrap enrollment, and per-device PSK lifecycle need end-to-end implementation |
-| QEMU image workshop | Partial | Secure Boot JOS test exists; Brume now has an isolated VM-disk workshop entry point, while complete image capture/deploy workflows remain open |
 
 ---
 
@@ -97,12 +94,10 @@ Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Pl
 *Exit criteria:* every parity item passes on at least one Secure Boot machine per supported vendor, and a Secure Boot VM test runs in CI.
 
 **Next: Appliance platform.**
-- `mist.yaml` configuration and `mist-setup`, with `mist.env` migrated.
+- `jog.yaml` configuration and `jog-setup`, with `jog.env` migrated.
 - Network Safety Framework: production-network detection, lockdown and recovery.
 - Operations Centre: status header, storage, imaging metrics, audit log.
-- Extended `mist-doctor`.
-- Integrate Mistmetry's API installation and management WLAN lifecycle with Brume.
-- Expand the QEMU workshop into repeatable Secure Boot capture/deploy test workflows.
+- Extended `jog-doctor`.
 
 *Exit criteria:* a technician can install, configure and monitor an appliance without editing files.
 
@@ -154,7 +149,7 @@ Compatibility is verified against the FOG version the appliance installs, and re
 
 ---
 
-## Brume
+## Haar
 
 A deployment appliance consisting of:
 
@@ -189,7 +184,7 @@ Responsibilities:
 
 ## Infrastructure First
 
-Brume should focus on infrastructure reliability rather than user-facing complexity.
+Haar should focus on infrastructure reliability rather than user-facing complexity.
 
 ---
 
@@ -207,7 +202,7 @@ Every significant activity should be visible through the Operations Centre.
 
 ## Safe By Default
 
-Brume should actively prevent misconfiguration and protect adjacent networks.
+Haar should actively prevent misconfiguration and protect adjacent networks.
 
 ---
 
@@ -287,7 +282,7 @@ Example:
 Stored at:
 
 ```text
-C:\ProgramData\Brume\Provisioning.json
+C:\ProgramData\JOG\Provisioning.json
 ```
 
 ---
@@ -364,7 +359,7 @@ Naming formats shall be configurable.
 
 # Site Profiles
 
-Each Brume appliance maintains a configurable site profile.
+Each Haar appliance maintains a configurable site profile.
 
 Example:
 
@@ -391,19 +386,19 @@ directory_services:
 
     credential:
         method: broker          # broker | offline_join | stored
-        reference: mist-join     # name of a sealed credential, never the secret itself
+        reference: jog-join     # name of a sealed credential, never the secret itself
 
     target_container:
         Provisioning
 ```
 
-Brume should support deferred joining where directory services are unavailable.
+Haar should support deferred joining where directory services are unavailable.
 
 ## Directory Credential Handling
 
 The account that joins computers and adds them to groups is the most sensitive secret in the system. Rules:
 
-- No privileged directory credential is ever placed in an image, in the FOG database, in `Provisioning.json`, in `mist.yaml`, in `mist.env`, or in version control.
+- No privileged directory credential is ever placed in an image, in the FOG database, in `Provisioning.json`, in `jog.yaml`, in `jog.env`, or in version control.
 - An imaged device never holds a reusable credential. Whatever it holds must be useless after the join.
 - The account is delegated least-privilege: create computer objects in the target container only, and add members to the named groups only. It is never a domain admin.
 - Use of the credential is audited.
@@ -621,10 +616,10 @@ Assignments occur automatically following directory integration.
 Primary configuration file:
 
 ```text
-/etc/mist/mist.yaml
+/etc/jog/jog.yaml
 ```
 
-*Current state:* the appliance is configured through `/etc/mist/mist.env` and `installer/mist-install-wizard.sh`. `mist.yaml` and `mist-setup` are Planned in the Next phase. `mist.env` stays supported until a migration tool converts it, so existing appliances keep working.
+*Current state:* the appliance is configured through `/etc/jog/jog.env` and `installer/jog-install-wizard.sh`. `jog.yaml` and `jog-setup` are Planned in the Next phase. `jog.env` stays supported until a migration tool converts it, so existing appliances keep working.
 
 Categories:
 
@@ -657,7 +652,7 @@ Monitoring
 Command:
 
 ```bash
-mist-setup
+jog-setup
 ```
 
 Collects:
@@ -682,14 +677,14 @@ Generates a complete appliance configuration.
 
 ---
 
-# Brume Doctor
+# Haar Doctor
 
-*Current state:* `mist-doctor` exists and checks the staged TFTP boot chain (shim, GRUB, signed kernel, initrd, modules, kernel/module match). The checks below are the Planned extension.
+*Current state:* `jog-doctor` exists and checks the staged TFTP boot chain (shim, GRUB, signed kernel, initrd, modules, kernel/module match). The checks below are the Planned extension.
 
 Command:
 
 ```bash
-mist-doctor
+jog-doctor
 ```
 
 Validates:
@@ -724,7 +719,7 @@ Results available via:
 
 ## Principles
 
-Brume must actively prevent network disruption.
+Haar must actively prevent network disruption.
 
 Protection should not rely solely on operator behaviour.
 
@@ -756,7 +751,7 @@ Imaging Interface
 
 Detection is passive wherever possible. Active probes (for example a DHCP discover) can themselves disturb a production network and must be opt-in. The signals that trigger lockdown must be listed in the configuration, and the design must state how false positives and false negatives are handled.
 
-Brume continuously evaluates:
+Haar continuously evaluates:
 
 ```text
 Existing DHCP Servers
@@ -861,7 +856,7 @@ Default lease duration:
 5 Minutes
 ```
 
-*Current state:* the appliance ships with a 12-hour lease (`JOG_DHCP_LEASE_HOURS=12`). Moving to 5 minutes is a Planned change in `mist`; the lease length becomes configurable and the default changes with the `mist.yaml` migration.
+*Current state:* the appliance ships with a 12-hour lease (`JOG_DHCP_LEASE_HOURS=12`). Moving to 5 minutes is a Planned change in `jog`; the lease length becomes configurable and the default changes with the `jog.yaml` migration.
 
 Example:
 
@@ -883,7 +878,7 @@ Benefits:
 The appliance shall automatically log into:
 
 ```text
-Brume Operations Centre
+Haar Operations Centre
 ```
 
 Displayed full-screen in kiosk mode.
@@ -1165,7 +1160,7 @@ Decisions needed before the Later phase starts:
 3. **Devices at rest before join:** a device waiting in `ENTERPRISE_READY` is unencrypted and may hold an autologon account. Decide whether a TPM-only BitLocker interim state is acceptable, or whether such devices are kept physically controlled.
 4. **BitLocker PIN delivery:** how an auto-generated PIN reaches the device owner without being stored on the appliance, and what happens in isolated mode where no escrow target exists.
 5. **Recovery key storage in isolated mode:** if keys are ever held on the appliance, how that store is encrypted and who can read it.
-6. **Where the provisioner lives:** a new `mist-provisioner` repo or a directory inside `mist`.
+6. **Where the provisioner lives:** a new `jog-provisioner` repo or a directory inside `jog`.
 7. **Non-Windows images:** the provisioning section is Windows-specific. Decide whether Linux images are in scope.
 8. **Hardware coverage policy:** which vendors and models JOS must support, and how new NIC and storage drivers are added and signed-module-verified.
 9. **Testing:** the provisioner needs a test strategy (virtual machines with a lab directory) alongside the existing Secure Boot VM test.
@@ -1206,6 +1201,6 @@ with minimal technician intervention and complete visibility throughout the proc
 
 # Guiding Principle
 
-> Brume exists so that doing the right thing is also the easiest thing.
+> Haar exists so that doing the right thing is also the easiest thing.
 
 If deployment feels boring, it is working.

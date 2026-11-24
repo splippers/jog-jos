@@ -1,13 +1,12 @@
 {
-  "productName": "Brume",
-  "productShort": "Brume",
-  "telemetryAppName": "Brumetry",
+  "productName": "Haar",
+  "productShort": "Haar",
+  "telemetryAppName": "Haaremetry",
   "osName": "JOS",
   "tagline": "Portable imaging, anywhere.",
   "licenceLine": "MIT",
-  "trademarkLine": "Brume and Brumetry are project names; no trademark registration is claimed.",
-  "logoWordmarkSvg": "branding/brume-jos-lockup.svg",
-  "logoIconPng": "branding/brume-icon.png",
+  "trademarkLine": "Haar and Haaremetry are project names; no trademark registration is claimed.",
+  "logoWordmarkSvg": "branding/haar-jos-lockup.svg",
   "neutralIdentifiers": {
     "codename": "jog",
     "telemetryCodename": "jogemetry",
@@ -15,5 +14,6 @@
     "androidApplicationId": "com.jog.imaging.control",
     "configPath": "/etc/jog",
     "envPrefix": "JOG_"
-  }
+  },
+  "descriptor": "Mobile Ubuntu-based imaging system"
 }

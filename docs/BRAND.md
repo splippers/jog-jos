@@ -1,18 +1,18 @@
-# Brand guide — MIST + JOS
+# Brand guide — Haar + JOS
 
 ## 1. Brand architecture
 
 | Name | What it is | Expansion |
 |---|---|---|
-| **MIST** | The portable imaging appliance: Ubuntu + FOG + the MIST tooling | **Mobile Imaging System Toolkit** |
-| **JOS** | The client runtime that boots on the machine being imaged | **MIST OS** |
-| **MIST + JOS** | The combined product / project | — |
+| **Haar** | The portable imaging appliance: Ubuntu + FOG + the Haar tooling | **portable Ubuntu imaging system** |
+| **JOS** | The client runtime that boots on the machine being imaged | **Haar's client OS** |
+| **Haar + JOS** | The combined product / project | — |
 
-Use **MIST** for the appliance, the server, the kiosk, the driver share, and the provisioning payload.
+Use **Haar** for the appliance, the server, the kiosk, the driver share, and the provisioning payload.
 Use **JOS** for the Secure Boot chain, the initrd, the GRUB menu, and the client-side boot experience.
-Use **MIST + JOS** when talking about the whole solution.
+Use **Haar + JOS** when talking about the whole solution.
 
-Do not call the appliance "JOS" or the runtime "MIST". The two names are the product's vocabulary.
+Do not call the appliance "JOS" or the runtime "Haar". The two names are the product's vocabulary.
 
 ## 2. Taglines
 
@@ -46,7 +46,7 @@ hybrid-join pipeline finishes in five minutes.
 | Slate | `#1E293B` | Panels, borders |
 | Muted | `#64748B` | Secondary text, dividers |
 | Light | `#F8FAFC` | Primary text on dark |
-| Cyan | `#22D3EE` | Primary accent, MIST wordmark, links |
+| Cyan | `#22D3EE` | Primary accent, Haar wordmark, links |
 | Sky | `#0EA5E9` | Secondary accent, FOG references |
 | Green | `#22C55E` | Success, `COMPLETE`, imaging target |
 | Amber | `#F59E0B` | Warnings, pending states |
@@ -58,7 +58,7 @@ backgrounds.
 
 ## 5. Typography
 
-- Wordmark: bold sans-serif, generous letter spacing (`MIST`, `JOS`).
+- Wordmark: bold sans-serif, generous letter spacing (`Haar`, `JOS`).
 - Headings: system sans (`Segoe UI`, `DejaVu Sans`, `Arial`).
 - Console / code: monospace (`DejaVu Sans Mono`, `Consolas`, `monospace`).
 - ASCII menus and serial output: **ASCII only**. No Unicode box drawing, arrows, or emoji in GRUB, the
@@ -68,9 +68,9 @@ backgrounds.
 
 | Asset | Path | Use |
 |---|---|---|
-| Product lockup (SVG) | `jog-jos/branding/jog-jos-lockup.svg` | README header, slides, docs |
+| Product lockup (SVG) | `jog-jos/branding/haar-jos-lockup.svg` | README header, slides, docs |
 | JOS ASCII wordmark | `jos/branding/jos-logo.txt` | GRUB banner, initrd console |
-| MIST console tag | `[MIST]` | Appliance scripts and logs |
+| Haar console tag | `[Haar]` | Appliance scripts and logs |
 | JOS console tag | `[JOS]` | Client runtime scripts and logs |
 
 ## 7. Lockup rules
@@ -84,11 +84,11 @@ backgrounds.
 
 ## 8. Naming in code and docs
 
-- Repository names: `mist`, `jos`, `jog-jos` (lowercase).
-- Script prefixes: `mist-` for appliance scripts, `jos-` for client scripts.
+- Repository names: `jog`, `jos`, `jog-jos` (lowercase).
+- Script prefixes: `jog-` for appliance scripts, `jos-` for client scripts.
 - Environment variables: `JOG_*` and `JOS_*`.
-- Log tags: `[mist-<script>]` and `[jos-<script>]`, with `[MIST]`/`[JOS]` for user-facing banners.
-- Windows payload: `JOGProvisioner`, `JOGProvisioning`, `C:\ProgramData\MIST`.
+- Log tags: `[jog-<script>]` and `[jos-<script>]`, with `[Haar]`/`[JOS]` for user-facing banners.
+- Windows payload: `JOGProvisioner`, `JOGProvisioning`, `C:\ProgramData\JOG`.
 
 ## 9. What not to do
 
