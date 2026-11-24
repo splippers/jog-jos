@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="JOG + JOS — corporate reimaging, free and open">
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="Brume + JOS — corporate reimaging, free and open">
   <rect width="900" height="220" rx="28" fill="#0B1220"/>
   <rect x="1" y="1" width="898" height="218" rx="27" fill="none" stroke="#1E293B" stroke-width="2"/>
 
@@ -11,11 +11,11 @@
   <path d="M236 50c44 42 44 104 0 146" fill="none" stroke="#22D3EE" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
 
   <!-- wordmark -->
-  <text x="300" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" fill="#22D3EE" letter-spacing="2">JOG</text>
+  <text x="300" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" fill="#22D3EE" letter-spacing="2">Brume</text>
   <text x="432" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="300" fill="#64748B">+</text>
   <text x="490" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" fill="#F8FAFC" letter-spacing="2">JOS</text>
 
-  <text x="302" y="148" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#94A3B8" letter-spacing="3">JONATHAN'S OPENSOURCE GHOST  +  JONATHAN'S OS</text>
+  <text x="302" y="148" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#94A3B8" letter-spacing="3">PORTABLE IMAGING  +  SECURE-BOOT CLIENT OS</text>
   <line x1="302" y1="164" x2="844" y2="164" stroke="#1E293B" stroke-width="2"/>
   <text x="302" y="190" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#22D3EE" letter-spacing="2">CORPORATE REIMAGING, FREE AND OPEN</text>
   <text x="844" y="190" text-anchor="end" font-family="'DejaVu Sans Mono', 'Consolas', monospace" font-size="12" fill="#64748B">v2026.11</text>

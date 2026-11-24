@@ -1,13 +1,14 @@
 <p align="center">
-  <img src="branding/jog-jos-lockup.svg" alt="JOG + JOS — corporate reimaging, free and open" width="820">
+  <img src="branding/mist-jos-lockup.svg" alt="Brume + JOS — corporate reimaging, free and open" width="820">
 </p>
 
-<h1 align="center">JOG + JOS</h1>
+<h1 align="center">Brume + JOS</h1>
 
 <p align="center"><strong>Corporate reimaging, without per-device imaging fees.</strong></p>
 
 <p align="center">
-  A free, portable, Secure Boot imaging appliance built on Ubuntu, FOG, and JOS.<br>
+  A free, portable, Secure Boot imaging appliance built on Ubuntu, FOG, and JOS, with
+  Android monitoring and management through Mistmetry.<br>
   Reimage a room of corporate laptops over multicast, then drive the full hybrid-join pipeline:
   drivers, domain join, AD groups, and BitLocker escrow.
 </p>
@@ -25,7 +26,7 @@
 
 ## What this is
 
-**JOG** is the appliance: an Ubuntu laptop that runs stock FOG on an isolated imaging network, with a
+**Brume** is the appliance: an Ubuntu laptop that runs stock FOG on an isolated imaging network, with a
 kiosk, a guided installer, and a driver share. **JOS** is the client runtime: the Secure Boot-compatible
 replacement for FOG's FOS that boots on the machine being imaged. Together they turn a blank corporate
 laptop into a domain-joined, policy-ready, encrypted asset without per-device imaging fees.
@@ -70,7 +71,7 @@ Corporate device refreshes are expensive for reasons that have little to do with
 - Drivers, domain join, group membership, and BitLocker are usually four separate manual steps.
 - The recovery key ends up in a spreadsheet, a share, or nowhere.
 
-JOG + JOS is the opposite: **free and open source, self-contained, and auditable**. It preserves the FOG
+Brume + JOS is the opposite: **free and open source, self-contained, and auditable**. It preserves the FOG
 workflow instead of replacing it, uses the standard Microsoft → Canonical Secure Boot chain, and turns the
 post-image steps into a resumable state machine on the device.
 
@@ -80,9 +81,9 @@ post-image steps into a resumable state machine on the device.
 
 | Stage | Where it runs | What happens |
 |---|---|---|
-| **PXE + Secure Boot** | firmware → JOG | shim → signed GRUB → signed Ubuntu kernel → JOS initramfs |
+| **PXE + Secure Boot** | firmware → Brume | shim → signed GRUB → signed Ubuntu kernel → JOS initramfs |
 | **Multicast image** | JOS client + FOG | one `udp-sender` stream, many `udp-receiver` clients, weak-link watchdog |
-| **Post-download injection** | JOS client, after the image write | mounts the Windows partition and installs the JOG Provisioner payload + `SetupComplete.cmd` |
+| **Post-download injection** | JOS client, after the image write | mounts the Windows partition and installs the Brume Provisioner payload + `SetupComplete.cmd` |
 | **Drivers** | Windows first boot | `Install-JOGDrivers.ps1` reads `manifest.json`, installs the `VMD` base pack + model pack from `\\10.99.0.1\Drivers`, and runs `pnputil` |
 | **Hostname** | Windows first boot | deterministic name from site code + serial/model |
 | **Handoff** | Windows first boot | `AirGapped` default: writes `AWAITING-CORPORATE.txt` + desktop shortcut and removes secrets |
@@ -116,17 +117,18 @@ The exact attributes, LDAP path, PowerShell commands, and the recommended altern
 
 ---
 
-## The three repositories
+## The four repositories
 
 | Repo | Role | Runs on |
 |---|---|---|
-| **[jog](https://github.com/splippers/jog)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the JOG laptop (server) |
+| **[mist](https://github.com/splippers/mist)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the Brume laptop (server) |
 | **[jos](https://github.com/splippers/jos)** | The client runtime: Secure Boot chain, initrd build, GRUB menu, FOS userland, local-boot fallback, weak-link watchdog | the machine being imaged (client) |
-| **jog-jos** (this repo) | Integration: pins `jog` and `jos` at known-good commits, combined docs, end-to-end design, roadmap | n/a |
+| **[mistmetry](https://github.com/splippers/mistmetry)** *(private)* | Android technician app, enrollment QR, authenticated mobile API, imaging dashboard and confirmed task controls | technician phone and Brume laptop |
+| **jog-jos** (this repo) | Integration: pins `mist` and `jos` at known-good commits, combined docs, end-to-end design, roadmap | n/a |
 
-**Rule of thumb:** if it configures the laptop or the FOG server, it belongs in `jog`. If it runs on, or
-builds for, the imaged machine, it belongs in `jos`. If it describes how the two fit together, it belongs
-here.
+**Rule of thumb:** if it configures the laptop or the FOG server, it belongs in `mist`. If it runs on, or
+builds for, the imaged machine, it belongs in `jos`. Phone UX and the authenticated mobile API belong in
+`mistmetry`. If it describes how the components fit together, it belongs here.
 
 ---
 
@@ -140,31 +142,35 @@ cd jog-jos
 jos/build/build-from-fos.sh
 
 # 2. Install the appliance helpers
-sudo JOS_DIR=$PWD/jos jog/install/jog-install.sh
+sudo JOS_DIR=$PWD/jos mist/install/mist-install.sh
 
 # 3. Configure the imaging network and install FOG
-sudo jog-install-wizard
+sudo mist-install-wizard
 
 # 4. Stage the Secure Boot chain and verify it
-sudo jog-stage-jos-boot.sh
-jog-doctor.sh
+sudo mist-stage-jos-boot.sh
+mist-doctor.sh
 ```
+
+For the private Android client, clone Mistmetry separately with an account that has repository access.
+The mobile API is installed only after the management Wi-Fi interface and address are configured; see
+the Mistmetry installation guide.
 
 Then, on the appliance:
 
 ```bash
 # Driver share (Samba) — read-only for clients, write for the upload account
-sudo jog-driver-share.sh --apply
+sudo mist-driver-share.sh --apply
 
 # Multicast profile for the 100-laptop reference design
-sudo jog-multicast-tune.sh --check
-sudo jog-multicast-tune.sh --apply
+sudo mist-multicast-tune.sh --check
+sudo mist-multicast-tune.sh --apply
 
 # Default PXE entry auto-joins a waiting multicast session
-sudo jog-autojoin-setup.sh --apply
+sudo mist-autojoin-setup.sh --apply
 
 # Corporate provisioning payload + FOG post-download injection
-sudo jog-corporate-setup            # writes /etc/jog/provisioning.env, installs the payload
+sudo mist-corporate-setup            # writes /etc/mist/provisioning.env, installs the payload
 ```
 
 On a Windows 11 workstation with internet access, sync driver packs for every model FOG has inventoried:
@@ -177,7 +183,7 @@ On a Windows 11 workstation with internet access, sync driver packs for every mo
 .\Sync-FOGDriverPacks.ps1
 ```
 
-The payload scripts live in [`jog/provisioner/windows/`](https://github.com/splippers/jog/tree/main/provisioner/windows).
+The payload scripts live in [`mist/provisioner/windows/`](https://github.com/splippers/mist/tree/main/provisioner/windows).
 
 ---
 
@@ -207,19 +213,19 @@ it touches production devices.
 | [`docs/CORPORATE-PROVISIONING.md`](docs/CORPORATE-PROVISIONING.md) | The end-to-end pipeline, state machine, credentials, retries, and test plan |
 | [`docs/BITLOCKER-AD.md`](docs/BITLOCKER-AD.md) | Where BitLocker recovery data lives in AD, why the PIN is different, and the recommended design |
 | [`docs/MULTICAST-100.md`](docs/MULTICAST-100.md) | The 100-client math, FOG settings, network design, and benchmark checklist |
-| [`docs/BRAND.md`](docs/BRAND.md) | JOG/JOS naming, voice, palette, and asset usage |
+| [`docs/BRAND.md`](docs/BRAND.md) | Brume/JOS naming, voice, palette, and asset usage |
 | [`ROADMAP.md`](ROADMAP.md) | The longer-term plan and the decisions still open |
 | [`jos/README.md`](https://github.com/splippers/jos) | The client runtime internals |
-| [`jog/README.md`](https://github.com/splippers/jog) | The appliance internals |
+| [`mist/README.md`](https://github.com/splippers/mist) | The appliance internals |
 
 ---
 
 ## Licensing
 
-- **JOG, JOS and the scripts in these repositories are MIT** (see `LICENSE` in each).
+- **Brume, JOS and the scripts in these repositories are MIT** (see `LICENSE` in each).
 - **Third-party software is not redistributed here.** FOG and FOS (GPL-3), Ubuntu, the Linux kernel, GRUB,
   partclone, udpcast, Memtest86+ and the rest are downloaded from their upstream sources when you build or
   install, and stay under their own licences. The full list is in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
-- **Windows is not included or licensed by JOG.** You must hold valid licences for every Windows image you
+- **Windows is not included or licensed by Brume.** You must hold valid licences for every Windows image you
   deploy. Never share images or keys.
-- JOG is independent of and not endorsed by Canonical, the FOG Project or Microsoft.
+- Brume is independent of and not endorsed by Canonical, the FOG Project or Microsoft.

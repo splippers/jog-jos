@@ -6,7 +6,7 @@ no redistribution obligations beyond your own MIT code.
 
 ## Principles
 
-1. **Ship only your code.** The installer contains JOG/JOS scripts, config templates and the notices file.
+1. **Ship only your code.** The installer contains Brume/JOS scripts, config templates and the notices file.
    Nothing from Canonical, the FOG Project or Microsoft.
 2. **Fetch at install time, from upstream, pinned and verified.** Every download has a version pin and a
    checksum (and a signature where upstream publishes one). A failed check stops the install. It never
@@ -47,7 +47,7 @@ jog-installer (your download, MIT)
 | 1 | Fail closed on checksums | **Done.** `fetch-ubuntu-live-server-iso.sh` aborts if the signed checksums cannot be fetched or do not match. |
 | 2 | Verify the signature, not just the checksum | **Done.** SHA256SUMS must be signed by the pinned Ubuntu CD signing key (fingerprint in the script). Tested with the real ISO, a bad file, and a wrong key. `--verify-only` checks an existing ISO. |
 | 3 | Pin FOG | **Done.** Release tag `1.5.10.2518`, commit `c97e2050...` checked after the clone (verified against upstream). Move it by changing tag and commit together after the VM test. |
-| 4 | Pin JOG itself | **Mechanism done, release tag still to cut.** Autoinstall clones `installer/JOG_REF`. It is `main` for now, and the renderer warns. Tag a release (for example `v0.1.0`), set `JOG_REF`, and installs become reproducible. |
+| 4 | Pin Brume itself | **Mechanism done, release tag still to cut.** Autoinstall clones `installer/JOG_REF`. It is `main` for now, and the renderer warns. Tag a release (for example `v0.1.0`), set `JOG_REF`, and installs become reproducible. |
 | 5 | Licence acceptance and notices step | **To do.** |
 | 6 | Retire the legacy static-binary fetchers (`fetch-curl/hwinfo/lshw`) | **To do.** The default FOS-based build does not use them. |
 | 7 | Pin and verify FOS | Already done: `build-from-fos.sh` pins `FOS_TAG` and verifies the `.sha256`. Note this is a checksum from the same host as the file, so it detects corruption, not a compromised release. |
@@ -58,6 +58,6 @@ jog-installer (your download, MIT)
   technicians on Windows (the Hyper-V path) and can carry a licence-accept UI. Recommended: shell first, binary
   when there is a customer asking.
 - **Remastered ISO or not.** Staying with stock Ubuntu plus autoinstall means no Canonical trademark issue. A
-  remastered "JOG OS" ISO needs its own name, no Ubuntu marks, and a per-package licence review. Defer it.
+  remastered "Brume OS" ISO needs its own name, no Ubuntu marks, and a per-package licence review. Defer it.
 - **Appliance bundle for sale.** If you later sell pre-built laptops or images, the GPL source offer and
   trademark terms in `THIRD_PARTY_NOTICES.md` apply to what you ship. Get that reviewed before the first sale.

@@ -10,8 +10,8 @@
 > domain join → Entra hybrid join → AD groups → BitLocker → escrow verified → `COMPLETE`. This is a
 > resumable state machine and is **not** part of the 5-minute imaging claim.
 
-This document describes phase 2 and how the JOG appliance hands off to it. The default design is
-**air-gapped**: imaging and driver installation finish on the isolated JOG network, then the device waits in
+This document describes phase 2 and how the Brume appliance hands off to it. The default design is
+**air-gapped**: imaging and driver installation finish on the isolated Brume network, then the device waits in
 `AWAITING_CORPORATE` until it reaches the corporate network.
 
 ---
@@ -19,17 +19,17 @@ This document describes phase 2 and how the JOG appliance hands off to it. The d
 ## 1. The pipeline at a glance
 
 ```text
-                         PHASE 1 (JOG/JOS + FOG)
+                         PHASE 1 (Brume/JOS + FOG)
  ┌─────────────────────────────────────────────────────────────────────────────┐
  │ PXE → shim → GRUB → signed kernel → JOS initrd                              │
  │      → FOG multicast / unicast deploy                                      │
  │      → image written to disk                                               │
  │      → post-download script mounts Windows partition                       │
- │      → copies C:\ProgramData\JOG\* + C:\Windows\Setup\Scripts\SetupComplete │
+ │      → copies C:\ProgramData\Brume\* + C:\Windows\Setup\Scripts\SetupComplete │
  └─────────────────────────────────────────────────────────────────────────────┘
                                        │
                                        ▼  first Windows boot / OOBE
-                         PHASE 2a (JOG Provisioner, SYSTEM)
+                         PHASE 2a (Brume Provisioner, SYSTEM)
  ┌─────────────────────────────────────────────────────────────────────────────┐
  │ SetupComplete.cmd → Start-JOGProvisioning.ps1                               │
  │                                                                             │
@@ -60,7 +60,7 @@ This document describes phase 2 and how the JOG appliance hands off to it. The d
 ```
 
 The device can reboot between stages. Every stage is idempotent and recorded in
-`C:\ProgramData\JOG\Provisioning.json`.
+`C:\ProgramData\Brume\Provisioning.json`.
 
 ---
 
@@ -119,7 +119,7 @@ phase has reached `COMPLETE`.
 The FOG post-download script installs this directory on the Windows partition:
 
 ```text
-C:\ProgramData\JOG\
+C:\ProgramData\Brume\
 ├── Start-JOGProvisioning.ps1          # orchestrator / state machine
 ├── Write-JOGHandoff.ps1               # AWAITING_CORPORATE note, shortcut, sanitised config
 ├── Resume-JOGCorporateEnrollment.ps1  # corporate-LAN resume + join credential prompt
@@ -129,7 +129,7 @@ C:\ProgramData\JOG\
 ├── Enable-JOGBitLocker.ps1            # TPM-only/TPM+PIN + escrow + verify
 ├── Get-JOGProvisioningStatus.ps1      # technician status view
 ├── Sync-FOGDriverPacks.ps1            # workstation-side model API + catalog sync
-├── jog-provisioning.json              # rendered configuration
+├── mist-provisioning.json              # rendered configuration
 ├── Provisioning.json                  # live state (created at first run)
 └── logs\                              # transcript + stage logs
 ```
@@ -145,9 +145,9 @@ interactive user session.
 
 ## 4. Configuration
 
-The appliance renders `/etc/jog/provisioning.env` into
-`/images/postdownloadscripts/jog-provisioner/jog-provisioning.json`. The template is
-`jog/config/jog-provisioning.env.example`.
+The appliance renders `/etc/mist/provisioning.env` into
+`/images/postdownloadscripts/mist-provisioner/mist-provisioning.json`. The template is
+`mist/config/mist-provisioning.env.example`.
 
 ```json
 {
@@ -160,17 +160,17 @@ The appliance renders `/etc/jog/provisioning.env` into
   "DomainNetbios": "CORP",
   "DomainJoin": {
     "Mode": "Credential",
-    "BlobPath": "C:\\ProgramData\\JOG\\domainjoin.blob",
+    "BlobPath": "C:\\ProgramData\\Brume\\domainjoin.blob",
     "User": "",
     "Password": "",
-    "OUPath": "OU=Workstations,OU=JOG,DC=corp,DC=example,DC=com"
+    "OUPath": "OU=Workstations,OU=Brume,DC=corp,DC=example,DC=com"
   },
   "HybridJoin": {
     "Enabled": true,
     "TimeoutMinutes": 30
   },
   "Groups": [
-    "JOG-Workstations",
+    "Brume-Workstations",
     "EndpointProtection",
     "DeviceEncryption"
   ],
@@ -200,19 +200,19 @@ The appliance renders `/etc/jog/provisioning.env` into
 ```
 
 `ProvisioningMode` is `AirGapped` or `Connected`. If it is absent, the provisioner defaults to `AirGapped`.
-`jog-corporate-setup.sh` and `jog-install-provisioner.sh` also default to `AirGapped`.
+`mist-corporate-setup.sh` and `mist-install-provisioner.sh` also default to `AirGapped`.
 
 ### Credentials
 
 | Credential | Where it lives | Recommendation |
 |---|---|---|
-| Driver-share read account | `jog-provisioning.json` (ACL: SYSTEM/Administrators) | Read-only; removed by the handoff stage; rotate after provisioning |
+| Driver-share read account | `mist-provisioning.json` (ACL: SYSTEM/Administrators) | Read-only; removed by the handoff stage; rotate after provisioning |
 | Domain join account | Prompted by the resume script; written to the ACL-protected config only for the join | Use a delegated, time-limited account; removed at `CLEANUP` |
-| Offline join blob | `C:\ProgramData\JOG\domainjoin.blob` | One blob per computer account; suitable for a single device or per-device blobs |
+| Offline join blob | `C:\ProgramData\Brume\domainjoin.blob` | One blob per computer account; suitable for a single device or per-device blobs |
 | BitLocker PIN | Never in the config by default | User-held, DPAPI-sealed locally, or a secrets manager |
 | AD write account for groups | Not on the device in offline mode | Run `Add-JOGComputerGroups.ps1` from a management host |
 
-The provisioner ACLs `C:\ProgramData\JOG` to `SYSTEM` and `Administrators` at first run. The `HANDOFF` stage
+The provisioner ACLs `C:\ProgramData\Brume` to `SYSTEM` and `Administrators` at first run. The `HANDOFF` stage
 removes the driver-share and domain-join passwords from the config before the device leaves the imaging
 network. The resume script writes a join password back only for the duration of the corporate join, and
 `CLEANUP` removes it again.
@@ -223,7 +223,7 @@ network. The resume script writes a join password back only for the duration of 
 
 ```powershell
 Add-Computer -DomainName corp.example.com `
-  -OUPath "OU=Workstations,OU=JOG,DC=corp,DC=example,DC=com" `
+  -OUPath "OU=Workstations,OU=Brume,DC=corp,DC=example,DC=com" `
   -Credential $credential -Force -Options JoinWithNewName,AccountCreate
 ```
 
@@ -234,7 +234,7 @@ corporate network and does not leave it on the air-gapped device.
 **Offline join (single device or per-device blob):**
 
 ```powershell
-djoin.exe /requestODJ /loadfile C:\ProgramData\JOG\domainjoin.blob `
+djoin.exe /requestODJ /loadfile C:\ProgramData\Brume\domainjoin.blob `
   /windowspath C:\Windows /localos
 ```
 
@@ -258,7 +258,7 @@ access:
 
 `Sync-FOGDriverPacks.ps1`:
 
-1. Queries the read-only JOG model API on the appliance (`http://192.168.254.1:8089/api/models`).
+1. Queries the read-only Brume model API on the appliance (`http://192.168.254.1:8089/api/models`).
 2. Resolves the latest Dell/HP driver-pack catalog entry for each registered model and target OS.
 3. Downloads the vendor pack, verifies it, and extracts the INF tree.
 4. Publishes it to `\\192.168.254.1\Drivers\<model-slug>` using the `driveradmin` account.
@@ -274,7 +274,7 @@ On the device, `Install-JOGDrivers.ps1`:
 6. `pnputil.exe /add-driver <dir>\*.inf /subdirs /install`.
 7. Logs the INF names and exit codes, unmaps the share, and deletes the staging directory.
 
-The share is the Samba `[Drivers]` share configured by `jog-driver-share.sh`. It is read-only for the
+The share is the Samba `[Drivers]` share configured by `mist-driver-share.sh`. It is read-only for the
 `drivers` account and writable only by `driveradmin`. Guest access can be enabled for legacy clients, but
 Windows 11 24H2 blocks insecure guest SMB by default; use the `drivers` credentials.
 
@@ -293,8 +293,8 @@ registers the resume task before restarting.
 `Write-JOGHandoff.ps1` runs after hostname and driver installation when `ProvisioningMode` is `AirGapped`:
 
 - Writes `AWAITING-CORPORATE.txt` with the device name, model, serial, domain, and instructions.
-- Puts `JOG - Awaiting Corporate.txt` and `Complete Corporate Enrollment.lnk` on the public desktop.
-- Records `HKLM\SOFTWARE\JOG\State = AWAITING_CORPORATE`.
+- Puts `Brume - Awaiting Corporate.txt` and `Complete Corporate Enrollment.lnk` on the public desktop.
+- Records `HKLM\SOFTWARE\Brume\State = AWAITING_CORPORATE`.
 - Removes the driver-share and domain-join passwords from the config.
 - Leaves `Provisioning.json` and the logs in place for the resume phase.
 
@@ -350,7 +350,7 @@ helper:
 
 ```powershell
 .\Add-JOGComputerGroups.ps1 -ComputerName LT-SITE01-ABC1234 `
-  -Groups JOG-Workstations,EndpointProtection,DeviceEncryption `
+  -Groups Brume-Workstations,EndpointProtection,DeviceEncryption `
   -Credential (Get-Credential) -Server dc01.corp.example.com
 ```
 
@@ -400,14 +400,14 @@ At `COMPLETE` the orchestrator:
 ### Appliance
 
 - [ ] FOG installed and the JOS boot chain staged.
-- [ ] `[Drivers]` Samba share configured (`jog-driver-share.sh`).
-- [ ] Model API installed and healthy (`jog-model-api-setup.sh --apply`; `jog-doctor.sh`).
+- [ ] `[Drivers]` Samba share configured (`mist-driver-share.sh`).
+- [ ] Model API installed and healthy (`mist-model-api-setup.sh --apply`; `mist-doctor.sh`).
 - [ ] Driver packs synced from the FOG inventory (`Sync-FOGDriverPacks.ps1`).
-- [ ] `jog-multicast-tune.sh` applied for the room, including the rendezvous address.
-- [ ] `jog-autojoin-setup.sh --apply` installed; default PXE entry joins a waiting session (or entry 8 is
+- [ ] `mist-multicast-tune.sh` applied for the room, including the rendezvous address.
+- [ ] `mist-autojoin-setup.sh --apply` installed; default PXE entry joins a waiting session (or entry 8 is
       used deliberately).
-- [ ] `/etc/jog/provisioning.env` rendered with `jog-corporate-setup`.
-- [ ] `jog-install-provisioner.sh` installed the payload and the post-download hook.
+- [ ] `/etc/mist/provisioning.env` rendered with `mist-corporate-setup`.
+- [ ] `mist-install-provisioner.sh` installed the payload and the post-download hook.
 
 ### Image
 
@@ -450,11 +450,11 @@ At `COMPLETE` the orchestrator:
 
 ### Lab
 
-1. Build the payload with `jog-install-provisioner.sh` against a test config.
+1. Build the payload with `mist-install-provisioner.sh` against a test config.
 2. Deploy to one VM (or one laptop) with a test OU and a test group.
 3. Verify the air-gapped handoff: `AWAITING_CORPORATE`, desktop shortcut, and no passwords in the config.
 4. Connect the device to the corporate network and run `Resume-JOGCorporateEnrollment.ps1`.
-5. Verify each state transition in `C:\ProgramData\JOG\Provisioning.json` and the logs.
+5. Verify each state transition in `C:\ProgramData\Brume\Provisioning.json` and the logs.
 6. Verify the driver manifest resolved the model and the base pack (`pnputil /enum-drivers`).
 7. Verify `dsregcmd /status` shows hybrid join.
 8. Verify `net group "<group>" /domain` contains the computer.
@@ -485,15 +485,15 @@ handle the burst. Stagger the first boot if the DCs are small, or use a post-ima
 
 | Piece | Repository / path |
 |---|---|
-| Windows orchestrator and stages | `jog/provisioner/windows/` |
-| Driver share setup | `jog/scripts/jog-driver-share.sh` |
-| Driver model API | `jog/scripts/jog-model-api.py`, `jog/scripts/jog-model-api-setup.sh` |
-| Driver catalog sync | `jog/provisioner/windows/Sync-FOGDriverPacks.ps1` |
-| Multicast profile | `jog/scripts/jog-multicast-tune.sh` |
-| Default PXE auto-join | `jog/scripts/jog-autojoin.php`, `jog/scripts/jog-autojoin-setup.sh` |
-| Corporate setup prompt | `jog/scripts/jog-corporate-setup.sh` |
-| Payload installer | `jog/install/jog-install-provisioner.sh` |
-| FOG post-download hook | `jog/install/postdownload/jog-inject-provisioner.sh` |
-| Configuration template | `jog/config/jog-provisioning.env.example` |
+| Windows orchestrator and stages | `mist/provisioner/windows/` |
+| Driver share setup | `mist/scripts/mist-driver-share.sh` |
+| Driver model API | `mist/scripts/mist-model-api.py`, `mist/scripts/mist-model-api-setup.sh` |
+| Driver catalog sync | `mist/provisioner/windows/Sync-FOGDriverPacks.ps1` |
+| Multicast profile | `mist/scripts/mist-multicast-tune.sh` |
+| Default PXE auto-join | `mist/scripts/mist-autojoin.php`, `mist/scripts/mist-autojoin-setup.sh` |
+| Corporate setup prompt | `mist/scripts/mist-corporate-setup.sh` |
+| Payload installer | `mist/install/mist-install-provisioner.sh` |
+| FOG post-download hook | `mist/install/postdownload/mist-inject-provisioner.sh` |
+| Configuration template | `mist/config/mist-provisioning.env.example` |
 | BitLocker/AD analysis | `docs/BITLOCKER-AD.md` |
 | Imaging math | `docs/MULTICAST-100.md` |
