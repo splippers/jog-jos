@@ -1,5 +1,5 @@
-# MIST / WISP / MISTMETRY — REBRAND & MIGRATION SPEC
-# Formerly: MIST / MISTMETRY
+# HAAR / WISP / HAARMETRY — REBRAND & MIGRATION SPEC
+# Formerly: HAAR / HAARMETRY
 # Status: APPROVED FOR MIGRATION — DO NOT USE OLD NAMES IN NEW CODE
 # Date: 2026-11-24
 
@@ -7,25 +7,25 @@
 
 We are rebranding the entire project. The old names are DEPRECATED.
 
-- MIST (Mobile Imaging System Toolkit) -> MIST
-- MISTMETRY (telemetry for MIST) -> WISP (agent) + MISTMETRY (dashboard/backend)
-- MIST repo -> MIST repo (keep git history, rename in place, do NOT create a new repo)
+- HAAR (Mobile Imaging System Toolkit) -> HAAR
+- HAARMETRY (telemetry for HAAR) -> WISP (agent) + HAARMETRY (dashboard/backend)
+- HAAR repo -> HAAR repo (keep git history, rename in place, do NOT create a new repo)
 
-Reason: MIST sounded like a personal side-project. MIST sounds like a product,
+Reason: HAAR sounded like a personal side-project. HAAR sounds like a product,
 fits the FOGProject / fog metaphor, is 4 letters, sticker-friendly, and
-searchable. WISP is a tiny bit of mist = perfect for a lightweight telemetry agent.
+searchable. WISP is a tiny bit of haar = perfect for a lightweight telemetry agent.
 
 Do NOT keep "Jonathan's" in any public-facing name, title, description, or banner.
-Do NOT keep "MIST" as an alias, fallback, or easter egg in new code.
+Do NOT keep "HAAR" as an alias, fallback, or easter egg in new code.
 
 ## 2. OFFICIAL NAMES & DEFINITIONS
 
-### MIST — Mobile Imaging System Toolkit
-- Pronounced: "mist"
+### HAAR — Mobile Imaging System Toolkit
+- Pronounced: "haar"
 - What it is: The portable, Ubuntu-based laptop imaging system powered by FOGProject.
 - Tagline: "Imaging, anywhere."
 - Secondary tagline: "Roll in. Image. Roll out."
-- Full description: "MIST is a portable, Ubuntu-based imaging station powered by
+- Full description: "HAAR is a portable, Ubuntu-based imaging station powered by
   FOGProject. Plug it into any network, boot any machine to PXE, and capture
   or deploy images without needing a server room, a rack, or a permanent install."
 - Stack: Ubuntu + FOGProject + PXE + DHCP / TFTP / NFS
@@ -33,41 +33,41 @@ Do NOT keep "MIST" as an alias, fallback, or easter egg in new code.
     - FOGProject: https://fogproject.org/
     - Ubuntu: https://ubuntu.com/
 
-### WISP — Telemetry Agent for MIST
+### WISP — Telemetry Agent for HAAR
 - Pronounced: "wisp"
 - What it is: The lightweight telemetry agent that runs on imaged / managed clients
-  and reports back to MIST.
-- Tagline: "Telemetry for MIST."
-- Secondary tagline: "MIST runs the imaging. WISP watches the machines."
-- Full description: "WISP is the lightweight telemetry agent for MIST. It collects
-  host health, imaging status, and system telemetry and drifts it back to MISTMETRY."
-- This replaces MISTMETRY entirely as the agent name.
+  and reports back to HAAR.
+- Tagline: "Telemetry for HAAR."
+- Secondary tagline: "HAAR runs the imaging. WISP watches the machines."
+- Full description: "WISP is the lightweight telemetry agent for HAAR. It collects
+  host health, imaging status, and system telemetry and drifts it back to HAARMETRY."
+- This replaces HAARMETRY entirely as the agent name.
 
-### MISTMETRY — Telemetry Dashboard / Backend
-- Pronounced: "mist-met-tree"
+### HAARMETRY — Telemetry Dashboard / Backend
+- Pronounced: "haar-met-tree"
 - What it is: The dashboard, API, and database where WISP reports land.
-  MISTMETRY is NOT an agent. It is the server-side view.
+  HAARMETRY is NOT an agent. It is the server-side view.
 - Tagline: "See what WISP saw."
-- Full description: "MISTMETRY is the telemetry store and dashboard for MIST.
-  WISP agents report in, MISTMETRY visualises it."
-- Relationship: WISP (agent) -> MISTMETRY (backend/dashboard) -> runs on / alongside MIST
+- Full description: "HAARMETRY is the telemetry store and dashboard for HAAR.
+  WISP agents report in, HAARMETRY visualises it."
+- Relationship: WISP (agent) -> HAARMETRY (backend/dashboard) -> runs on / alongside HAAR
 
 ### The One-Liner For README / About
-> MIST runs the imaging. WISP watches the machines. MISTMETRY shows you what WISP saw.
+> HAAR runs the imaging. WISP watches the machines. HAARMETRY shows you what WISP saw.
 
 ## 3. BRANDING
 
-- Primary colour (MIST): Matte Black #1A1A1A, White #FFFFFF, Ubuntu Orange #E95420 accent
+- Primary colour (HAAR): Matte Black #1A1A1A, White #FFFFFF, Ubuntu Orange #E95420 accent
 - Primary colour (WISP): Deep Navy #0F1426, Cyan #29B6F6 / #35C4F0 accent, White
-- Primary colour (MISTMETRY): Same as MIST, with Cyan accent from WISP to show it bridges both
-- Fonts: Bold condensed sans for MIST / WISP wordmarks. Clean sans for body.
-- Logo concept MIST: MIST in bold white, "I" can be a network cable / PXE symbol.
+- Primary colour (HAARMETRY): Same as HAAR, with Cyan accent from WISP to show it bridges both
+- Fonts: Bold condensed sans for HAAR / WISP wordmarks. Clean sans for body.
+- Logo concept HAAR: HAAR in bold white, "I" can be a network cable / PXE symbol.
   Fog wisp line along the bottom. Orange accent line.
 - Logo concept WISP: A single white wisp / wave line ending in a cyan data dot.
-  Represents signal + mist + pulse.
+  Represents signal + haar + pulse.
 - Assets (in repo):
-    - assets/branding/mist-splash.png
-    - assets/branding/mist-banner.png
+    - assets/branding/haar-splash.png
+    - assets/branding/haar-banner.png
     - assets/branding/wisp-icon.png
     - assets/branding/wisp-splash.png
 - Banner footer must read: ubuntu + fogproject.org
@@ -82,19 +82,19 @@ upstream code. Do NOT rename FOGProject itself. FOGProject stays FOGProject.
 
 | OLD | NEW | NOTES |
 | :--- | :--- | :--- |
-| MIST | MIST | All caps, titles, docs |
-| Jog | Mist | Title case |
-| jog | mist | Lowercase, filenames, slugs |
+| HAAR | HAAR | All caps, titles, docs |
+| Jog | Haar | Title case |
+| jog | haar | Lowercase, filenames, slugs |
 | Mobile Imaging System Toolkit | Mobile Imaging System Toolkit | Full expansion |
 | Mobile Imaging System Toolkit | Mobile Imaging System Toolkit | Variant |
-| MISTMETRY | WISP | When referring to the AGENT |
+| HAARMETRY | WISP | When referring to the AGENT |
 | JOGemetry | Wisp | Title case agent |
-| mistmetry | wisp | Lowercase agent |
+| haarmetry | wisp | Lowercase agent |
 | jog-emetry | wisp | Hyphen variant |
-| MISTMETRY (dashboard) | MISTMETRY | Only when referring to dashboard/backend |
-| mistmetry-dashboard | mistmetry | Dashboard variant |
-| mistmetry-server | mistmetry-server | Server variant |
-| mistmetry-api | mistmetry-api | API variant |
+| HAARMETRY (dashboard) | HAARMETRY | Only when referring to dashboard/backend |
+| haarmetry-dashboard | haarmetry | Dashboard variant |
+| haarmetry-server | haarmetry-server | Server variant |
+| haarmetry-api | haarmetry-api | API variant |
 | jog_agent | wisp_agent | Code identifiers |
 | jogAgent | wispAgent | Code identifiers |
 | JogAgent | WispAgent | Code identifiers |
@@ -103,42 +103,42 @@ upstream code. Do NOT rename FOGProject itself. FOGProject stays FOGProject.
 | fogproject.org | fogproject.org | Upstream URL correction |
 | https://fogproject.org | https://fogproject.org/ | Upstream URL correction |
 
-### CRITICAL DISAMBIGUATION FOR MISTMETRY
-Old code used MISTMETRY for BOTH agent + dashboard. You MUST split it:
+### CRITICAL DISAMBIGUATION FOR HAARMETRY
+Old code used HAARMETRY for BOTH agent + dashboard. You MUST split it:
 - If the file/class/function runs ON THE CLIENT, collects metrics, sends heartbeat -> rename to WISP
-- If the file/class/function runs ON THE SERVER, stores metrics, serves dashboard/API -> rename to MISTMETRY
-- If unsure, flag it in MIGRATION_NOTES.md and default to WISP for collectors, MISTMETRY for storage.
+- If the file/class/function runs ON THE SERVER, stores metrics, serves dashboard/API -> rename to HAARMETRY
+- If unsure, flag it in MIGRATION_NOTES.md and default to WISP for collectors, HAARMETRY for storage.
 
 ## 5. FILE / DIRECTORY RENAMES
 
 Rename directories/files (use `git mv`):
 
-- jog/ -> mist/
-- jog-*/ -> mist-*/
-- mistmetry/ -> wisp/
-- mistmetry-dashboard/ -> mistmetry/
-- mistmetry-server/ -> mistmetry-server/
-- mistmetry-api/ -> mistmetry-api/
-- README-MIST.md -> DELETE, merge into README.md
-- docs/jog-* -> docs/mist-*
-- assets/jog-* -> assets/branding/mist-* or wisp-*
+- jog/ -> haar/
+- jog-*/ -> haar-*/
+- haarmetry/ -> wisp/
+- haarmetry-dashboard/ -> haarmetry/
+- haarmetry-server/ -> haarmetry-server/
+- haarmetry-api/ -> haarmetry-api/
+- README-HAAR.md -> DELETE, merge into README.md
+- docs/jog-* -> docs/haar-*
+- assets/jog-* -> assets/branding/haar-* or wisp-*
 
 Proposed final top-level structure:
 
     /
-    ├── README.md                 # MIST overview
+    ├── README.md                 # HAAR overview
     ├── docs/
-    │   ├── MIST-SETUP.md
-    │   ├── MIST-USAGE.md
+    │   ├── HAAR-SETUP.md
+    │   ├── HAAR-USAGE.md
     │   ├── WISP-AGENT.md
-    │   └── MISTMETRY-DASHBOARD.md
-    ├── mist/                     # was jog/ — imaging system code / configs
-    ├── wisp/                     # was mistmetry/ agent — client telemetry agent
-    ├── mistmetry/                # dashboard + API + DB for telemetry
+    │   └── HAARMETRY-DASHBOARD.md
+    ├── haar/                     # was jog/ — imaging system code / configs
+    ├── wisp/                     # was haarmetry/ agent — client telemetry agent
+    ├── haarmetry/                # dashboard + API + DB for telemetry
     ├── assets/
     │   └── branding/
-    │       ├── mist-splash.png
-    │       ├── mist-banner.png
+    │       ├── haar-splash.png
+    │       ├── haar-banner.png
     │       ├── wisp-icon.png
     │       └── wisp-splash.png
     ├── scripts/
@@ -147,69 +147,69 @@ Proposed final top-level structure:
 ## 6. CODE RENAMES — SERVICES, PACKAGES, ENV, CONFIG
 
 - systemd services:
-    - jog.service -> mist.service
-    - mistmetry.service -> wisp.service
-    - mistmetry-dashboard.service -> mistmetry.service
+    - jog.service -> haar.service
+    - haarmetry.service -> wisp.service
+    - haarmetry-dashboard.service -> haarmetry.service
 
 - Binaries / CLI:
-    - `jog` -> `mist`
-    - `jog-cli` -> `mist-cli`
-    - `mistmetry` -> `wisp`
-    - `mistmetry-collect` -> `wisp-collect`
+    - `jog` -> `haar`
+    - `jog-cli` -> `haar-cli`
+    - `haarmetry` -> `wisp`
+    - `haarmetry-collect` -> `wisp-collect`
 
 - Python / Go / JS packages:
-    - `jog` -> `mist`
-    - `mistmetry` -> `wisp` (agent) / `mistmetry` (backend)
-    - `from jog...` -> `from mist...`
-    - `import mistmetry` -> `import wisp`
+    - `jog` -> `haar`
+    - `haarmetry` -> `wisp` (agent) / `haarmetry` (backend)
+    - `from jog...` -> `from haar...`
+    - `import haarmetry` -> `import wisp`
 
 - Docker:
-    - `jog:latest` -> `mist:latest`
-    - `mistmetry:latest` -> `wisp:latest`
-    - `mistmetry-dashboard:latest` -> `mistmetry:latest`
-    - container names: `jog-*` -> `mist-*`, `mistmetry-*` -> `wisp-*` / `mistmetry-*`
+    - `jog:latest` -> `haar:latest`
+    - `haarmetry:latest` -> `wisp:latest`
+    - `haarmetry-dashboard:latest` -> `haarmetry:latest`
+    - container names: `jog-*` -> `haar-*`, `haarmetry-*` -> `wisp-*` / `haarmetry-*`
 
 - Env vars (keep OLD as deprecated alias for 1 release if needed, then remove):
-    - JOG_* -> MIST_*
-    - MISTMETRY_* -> WISP_* (agent) or MISTMETRY_* (dashboard)
-    - JOG_HOST -> MIST_HOST
-    - JOG_PORT -> MIST_PORT
-    - MISTMETRY_ENDPOINT -> WISP_ENDPOINT
-    - MISTMETRY_SERVER -> MISTMETRY_SERVER
+    - JOG_* -> HAAR_*
+    - HAARMETRY_* -> WISP_* (agent) or HAARMETRY_* (dashboard)
+    - JOG_HOST -> HAAR_HOST
+    - JOG_PORT -> HAAR_PORT
+    - HAARMETRY_ENDPOINT -> WISP_ENDPOINT
+    - HAARMETRY_SERVER -> HAARMETRY_SERVER
 
 - Config files:
-    - jog.conf / jog.yaml / jog.json -> mist.conf / mist.yaml / mist.json
-    - mistmetry.conf -> wisp.conf
-    - mistmetry-dashboard.conf -> mistmetry.conf
-    - Config keys: `jog:` -> `mist:`, `mistmetry:` -> `wisp:` / `mistmetry:`
+    - jog.conf / jog.yaml / jog.json -> haar.conf / haar.yaml / haar.json
+    - haarmetry.conf -> wisp.conf
+    - haarmetry-dashboard.conf -> haarmetry.conf
+    - Config keys: `jog:` -> `haar:`, `haarmetry:` -> `wisp:` / `haarmetry:`
 
 - DB:
-    - Database `jog` -> `mist`
-    - Database `mistmetry` -> `mistmetry`
-    - Tables `jog_*` -> `mist_*`
-    - Tables `mistmetry_*` -> `wisp_*` (raw agent events) or `mistmetry_*` (aggregated)
+    - Database `jog` -> `haar`
+    - Database `haarmetry` -> `haarmetry`
+    - Tables `jog_*` -> `haar_*`
+    - Tables `haarmetry_*` -> `wisp_*` (raw agent events) or `haarmetry_*` (aggregated)
 
 - API routes:
-    - /api/jog/* -> /api/mist/*
-    - /api/mistmetry/* -> /api/wisp/* (agent ingest) OR /api/mistmetry/* (dashboard queries)
-    - Keep a 301 / deprecation shim for /api/mistmetry/* -> /api/wisp/* for one release, log warning.
+    - /api/jog/* -> /api/haar/*
+    - /api/haarmetry/* -> /api/wisp/* (agent ingest) OR /api/haarmetry/* (dashboard queries)
+    - Keep a 301 / deprecation shim for /api/haarmetry/* -> /api/wisp/* for one release, log warning.
 
 - Hostnames / mDNS:
-    - jog.local -> mist.local
-    - mistmetry.local -> wisp.local (agent) / mistmetry.local (dashboard)
+    - jog.local -> haar.local
+    - haarmetry.local -> wisp.local (agent) / haarmetry.local (dashboard)
 
 ## 7. DOCS / UI / STRINGS TO UPDATE
 
 Update in ALL user-facing strings:
-- README.md title: "# MIST — Mobile Imaging System Toolkit"
+- README.md title: "# HAAR — Mobile Imaging System Toolkit"
 - README.md subtitle: "Imaging, anywhere. Ubuntu + FOGProject, in your bag."
 - README.md must link FOGProject as https://fogproject.org/ — never fogproject.org
-- Splash screens: MIST splash + WISP splash (see assets/branding/)
+- Splash screens: HAAR splash + WISP splash (see assets/branding/)
 - App titles, window titles, CLI --help, --version, man pages
-- PXE boot menu: "MIST — Boot to Imaging" (was MIST)
-- Web UI header: "MIST" + subhead "MISTMETRY" for telemetry pages
-- About dialog: Must list MIST, WISP, MISTMETRY with versions
-- Footer: "MIST • WISP • MISTMETRY — Open Source"
+- PXE boot menu: "HAAR — Boot to Imaging" (was HAAR)
+- Web UI header: "HAAR" + subhead "HAARMETRY" for telemetry pages
+- About dialog: Must list HAAR, WISP, HAARMETRY with versions
+- Footer: "HAAR • WISP • HAARMETRY — Open Source"
 
 Do NOT update:
 - FOGProject name, logo, or upstream docs (third-party)
@@ -218,35 +218,35 @@ Do NOT update:
 
 ## 8. MIGRATION STEPS FOR OPENCODE — DO IN ORDER
 
-1. Create branch: `git checkout -b rebrand/mist-wisp-mistmetry`
-2. Run global search for: MIST, Jog, jog, MISTMETRY, mistmetry, Mobile Imaging System Toolkit, fogproject.org
+1. Create branch: `git checkout -b rebrand/haar-wisp-haarmetry`
+2. Run global search for: HAAR, Jog, jog, HAARMETRY, haarmetry, Mobile Imaging System Toolkit, fogproject.org
    Save results to MIGRATION_NOTES.md before changing anything.
 3. Apply rename map in Section 4 + file renames in Section 5 using `git mv`.
-4. Split MISTMETRY -> WISP vs MISTMETRY per Section 4 disambiguation. List every ambiguous file in MIGRATION_NOTES.md.
+4. Split HAARMETRY -> WISP vs HAARMETRY per Section 4 disambiguation. List every ambiguous file in MIGRATION_NOTES.md.
 5. Update env vars, configs, systemd units, Dockerfiles, docker-compose.yml, API routes.
 6. Update README.md, docs/, splash screens, banners, icons, PXE menu, CLI help.
 7. Fix all upstream links: fogproject.org -> fogproject.org
-8. Add deprecation shims: old CLI `jog` -> prints "jog is now mist, use mist" + forwards. Old env vars log deprecation warning once. Keep for 1 release only.
+8. Add deprecation shims: old CLI `jog` -> prints "jog is now haar, use haar" + forwards. Old env vars log deprecation warning once. Keep for 1 release only.
 9. Run: lint, unit tests, build, boot test in VM. Fix all broken imports / references.
-10. Update .github/workflows, CI badges, links, repo description to MIST.
-11. Create MIGRATION.md with: What changed, old -> new table, how to upgrade from MIST to MIST, breaking changes.
-12. Commit with message: `feat!: rebrand MIST -> MIST, MISTMETRY -> WISP / MISTMETRY`
-13. Open PR, request review, do NOT merge until PXE boot + WISP heartbeat to MISTMETRY verified.
+10. Update .github/workflows, CI badges, links, repo description to HAAR.
+11. Create MIGRATION.md with: What changed, old -> new table, how to upgrade from HAAR to HAAR, breaking changes.
+12. Commit with message: `feat!: rebrand HAAR -> HAAR, HAARMETRY -> WISP / HAARMETRY`
+13. Open PR, request review, do NOT merge until PXE boot + WISP heartbeat to HAARMETRY verified.
 
 ## 9. VERIFICATION CHECKLIST
 
-- [ ] No `MIST` remains in code/docs/UI except in MIGRATION.md / MIGRATION_NOTES.md historical note + deprecation shims
-- [ ] No `MISTMETRY` remains except in migration docs + shims
+- [ ] No `HAAR` remains in code/docs/UI except in MIGRATION.md / MIGRATION_NOTES.md historical note + deprecation shims
+- [ ] No `HAARMETRY` remains except in migration docs + shims
 - [ ] No `fogproject.org` remains anywhere — only `fogproject.org`
-- [ ] `mist --help` works, `wisp --help` works
-- [ ] `mist.service` starts, `wisp.service` starts, `mistmetry.service` starts
-- [ ] PXE boot menu shows MIST
-- [ ] WISP agent reports to MISTMETRY dashboard
-- [ ] README shows MIST banner, MIST description, WISP + MISTMETRY section
+- [ ] `haar --help` works, `wisp --help` works
+- [ ] `haar.service` starts, `wisp.service` starts, `haarmetry.service` starts
+- [ ] PXE boot menu shows HAAR
+- [ ] WISP agent reports to HAARMETRY dashboard
+- [ ] README shows HAAR banner, HAAR description, WISP + HAARMETRY section
 - [ ] README links FOGProject to https://fogproject.org/
-- [ ] Splash screens load: mist-splash.png, wisp-splash.png
-- [ ] Docker images build as mist / wisp / mistmetry
+- [ ] Splash screens load: haar-splash.png, wisp-splash.png
+- [ ] Docker images build as haar / wisp / haarmetry
 
 ## 10. WHAT TO SAY IF USERS ASK
 
-> MIST is now MIST. Same tool, better name. MISTMETRY is now WISP (agent) + MISTMETRY (dashboard). Update your commands from `jog` to `mist` and `mistmetry` to `wisp`. Powered by FOGProject — https://fogproject.org/
+> HAAR is now HAAR. Same tool, better name. HAARMETRY is now WISP (agent) + HAARMETRY (dashboard). Update your commands from `jog` to `haar` and `haarmetry` to `wisp`. Powered by FOGProject — https://fogproject.org/

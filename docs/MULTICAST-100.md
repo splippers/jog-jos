@@ -66,7 +66,7 @@ keep the Windows partition lean.
 ## 2. The FOG settings that matter
 
 The live appliance was found with a **10-client cap** and a **10-minute join wait**. Both are wrong for
-this target. The package ships `mist-multicast-tune.sh` to set them deliberately.
+this target. The package ships `haar-multicast-tune.sh` to set them deliberately.
 
 | Setting | Where | Before | Applied / target | Why |
 |---|---|---|---|---|
@@ -169,7 +169,7 @@ Checklist:
 - [ ] All clients wired, UEFI, Secure Boot on, JOS staged.
 - [ ] Client disks are NVMe/SATA SSD; no HDD/eMMC.
 - [ ] `ngmMaxClients=100`, `ngmMaxBitrate=800m`, `FOG_UDPCAST_MAXWAIT=3`.
-- [ ] `mist-autojoin-setup.sh --apply` installed and `JOG_AUTOJOIN_ALLOW_NET` covers the client subnet.
+- [ ] `haar-autojoin-setup.sh --apply` installed and `JOG_AUTOJOIN_ALLOW_NET` covers the client subnet.
 - [ ] `FOG_MULTICAST_RENDEZVOUS` is the imaging interface address, not the USB/workstation address.
 - [ ] Image is as small as practical; `UsedSpaceOnly`; pagefile/hiberfil removed.
 - [ ] The FOG storage node is on the same L2 segment or has a multicast route.
@@ -193,7 +193,7 @@ Do not quote a number from this document. Measure it:
    limit.
 6. Repeat with the image at its real production size, not a lab image.
 
-The Operations Centre (`mist/scripts/mist-imaging-api.py`) shows per-device progress and rate; use it as the
+The Operations Centre (`haar/scripts/haar-imaging-api.py`) shows per-device progress and rate; use it as the
 live view during the benchmark.
 
 ### What "under 5 minutes" really means
@@ -213,10 +213,10 @@ image is the cheapest way to make the claim true.
 
 ```bash
 # Inspect the current FOG settings and the link speed
-sudo mist-multicast-tune.sh --check
+sudo haar-multicast-tune.sh --check
 
 # Back up the FOG tables, then apply the 100-client profile
-sudo mist-multicast-tune.sh --apply
+sudo haar-multicast-tune.sh --apply
 ```
 
 The script updates `nfsGroupMembers` and `globalSettings`, backs up the affected tables, and prints the
@@ -232,8 +232,8 @@ now asks the appliance for a joinable session before the normal FOG handshake:
 - no session/task → JOS boots the local disk instead of erroring;
 - several named sessions → JOS refuses to guess; use entry **8. Join Multicast Session** to pick one.
 
-The server-side endpoint is `/fog/service/mist-autojoin.php`, installed by
-`sudo mist-autojoin-setup.sh --apply` (or `JOG_AUTOJOIN_ENABLE=1` via `mist-post-fog-setup.sh`). It is
+The server-side endpoint is `/fog/service/haar-autojoin.php`, installed by
+`sudo haar-autojoin-setup.sh --apply` (or `JOG_AUTOJOIN_ENABLE=1` via `haar-post-fog-setup.sh`). It is
 restricted to the imaging subnet by default (`JOG_AUTOJOIN_ALLOW_NET=10.99.0.0/24`). A session with
 `msSessClients=1` and no task associations is enough to validate transport with one client; a production
 session should have one FOG multicast task per host so the server can track completion and enforce the

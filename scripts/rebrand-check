@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json, os, re, sys
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-names = [r'\bMIST\b', r'\bMISTMETRY\b', r'\bWISP\b']
+names = [r'\bHAAR\b', r'\bHAARMETRY\b', r'\bWISP\b']
 allow = {'brand/brand.env','brand/brand.json','MIGRATION.md','REBRAND.md','scripts/rebrand-check','docs/JOG-JOS-RESEARCH.md','docs/BRAND.md'}
 bad=[]
 for dp,ds,fs in os.walk(root):

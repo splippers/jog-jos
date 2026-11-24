@@ -129,7 +129,7 @@ C:\ProgramData\Brume\
 ├── Enable-JOGBitLocker.ps1            # TPM-only/TPM+PIN + escrow + verify
 ├── Get-JOGProvisioningStatus.ps1      # technician status view
 ├── Sync-FOGDriverPacks.ps1            # workstation-side model API + catalog sync
-├── mist-provisioning.json              # rendered configuration
+├── haar-provisioning.json              # rendered configuration
 ├── Provisioning.json                  # live state (created at first run)
 └── logs\                              # transcript + stage logs
 ```
@@ -145,9 +145,9 @@ interactive user session.
 
 ## 4. Configuration
 
-The appliance renders `/etc/mist/provisioning.env` into
-`/images/postdownloadscripts/mist-provisioner/mist-provisioning.json`. The template is
-`mist/config/mist-provisioning.env.example`.
+The appliance renders `/etc/haar/provisioning.env` into
+`/images/postdownloadscripts/haar-provisioner/haar-provisioning.json`. The template is
+`haar/config/haar-provisioning.env.example`.
 
 ```json
 {
@@ -200,13 +200,13 @@ The appliance renders `/etc/mist/provisioning.env` into
 ```
 
 `ProvisioningMode` is `AirGapped` or `Connected`. If it is absent, the provisioner defaults to `AirGapped`.
-`mist-corporate-setup.sh` and `mist-install-provisioner.sh` also default to `AirGapped`.
+`haar-corporate-setup.sh` and `haar-install-provisioner.sh` also default to `AirGapped`.
 
 ### Credentials
 
 | Credential | Where it lives | Recommendation |
 |---|---|---|
-| Driver-share read account | `mist-provisioning.json` (ACL: SYSTEM/Administrators) | Read-only; removed by the handoff stage; rotate after provisioning |
+| Driver-share read account | `haar-provisioning.json` (ACL: SYSTEM/Administrators) | Read-only; removed by the handoff stage; rotate after provisioning |
 | Domain join account | Prompted by the resume script; written to the ACL-protected config only for the join | Use a delegated, time-limited account; removed at `CLEANUP` |
 | Offline join blob | `C:\ProgramData\Brume\domainjoin.blob` | One blob per computer account; suitable for a single device or per-device blobs |
 | BitLocker PIN | Never in the config by default | User-held, DPAPI-sealed locally, or a secrets manager |
@@ -274,7 +274,7 @@ On the device, `Install-JOGDrivers.ps1`:
 6. `pnputil.exe /add-driver <dir>\*.inf /subdirs /install`.
 7. Logs the INF names and exit codes, unmaps the share, and deletes the staging directory.
 
-The share is the Samba `[Drivers]` share configured by `mist-driver-share.sh`. It is read-only for the
+The share is the Samba `[Drivers]` share configured by `haar-driver-share.sh`. It is read-only for the
 `drivers` account and writable only by `driveradmin`. Guest access can be enabled for legacy clients, but
 Windows 11 24H2 blocks insecure guest SMB by default; use the `drivers` credentials.
 
@@ -400,14 +400,14 @@ At `COMPLETE` the orchestrator:
 ### Appliance
 
 - [ ] FOG installed and the JOS boot chain staged.
-- [ ] `[Drivers]` Samba share configured (`mist-driver-share.sh`).
-- [ ] Model API installed and healthy (`mist-model-api-setup.sh --apply`; `mist-doctor.sh`).
+- [ ] `[Drivers]` Samba share configured (`haar-driver-share.sh`).
+- [ ] Model API installed and healthy (`haar-model-api-setup.sh --apply`; `haar-doctor.sh`).
 - [ ] Driver packs synced from the FOG inventory (`Sync-FOGDriverPacks.ps1`).
-- [ ] `mist-multicast-tune.sh` applied for the room, including the rendezvous address.
-- [ ] `mist-autojoin-setup.sh --apply` installed; default PXE entry joins a waiting session (or entry 8 is
+- [ ] `haar-multicast-tune.sh` applied for the room, including the rendezvous address.
+- [ ] `haar-autojoin-setup.sh --apply` installed; default PXE entry joins a waiting session (or entry 8 is
       used deliberately).
-- [ ] `/etc/mist/provisioning.env` rendered with `mist-corporate-setup`.
-- [ ] `mist-install-provisioner.sh` installed the payload and the post-download hook.
+- [ ] `/etc/haar/provisioning.env` rendered with `haar-corporate-setup`.
+- [ ] `haar-install-provisioner.sh` installed the payload and the post-download hook.
 
 ### Image
 
@@ -450,7 +450,7 @@ At `COMPLETE` the orchestrator:
 
 ### Lab
 
-1. Build the payload with `mist-install-provisioner.sh` against a test config.
+1. Build the payload with `haar-install-provisioner.sh` against a test config.
 2. Deploy to one VM (or one laptop) with a test OU and a test group.
 3. Verify the air-gapped handoff: `AWAITING_CORPORATE`, desktop shortcut, and no passwords in the config.
 4. Connect the device to the corporate network and run `Resume-JOGCorporateEnrollment.ps1`.
@@ -485,15 +485,15 @@ handle the burst. Stagger the first boot if the DCs are small, or use a post-ima
 
 | Piece | Repository / path |
 |---|---|
-| Windows orchestrator and stages | `mist/provisioner/windows/` |
-| Driver share setup | `mist/scripts/mist-driver-share.sh` |
-| Driver model API | `mist/scripts/mist-model-api.py`, `mist/scripts/mist-model-api-setup.sh` |
-| Driver catalog sync | `mist/provisioner/windows/Sync-FOGDriverPacks.ps1` |
-| Multicast profile | `mist/scripts/mist-multicast-tune.sh` |
-| Default PXE auto-join | `mist/scripts/mist-autojoin.php`, `mist/scripts/mist-autojoin-setup.sh` |
-| Corporate setup prompt | `mist/scripts/mist-corporate-setup.sh` |
-| Payload installer | `mist/install/mist-install-provisioner.sh` |
-| FOG post-download hook | `mist/install/postdownload/mist-inject-provisioner.sh` |
-| Configuration template | `mist/config/mist-provisioning.env.example` |
+| Windows orchestrator and stages | `haar/provisioner/windows/` |
+| Driver share setup | `haar/scripts/haar-driver-share.sh` |
+| Driver model API | `haar/scripts/haar-model-api.py`, `haar/scripts/haar-model-api-setup.sh` |
+| Driver catalog sync | `haar/provisioner/windows/Sync-FOGDriverPacks.ps1` |
+| Multicast profile | `haar/scripts/haar-multicast-tune.sh` |
+| Default PXE auto-join | `haar/scripts/haar-autojoin.php`, `haar/scripts/haar-autojoin-setup.sh` |
+| Corporate setup prompt | `haar/scripts/haar-corporate-setup.sh` |
+| Payload installer | `haar/install/haar-install-provisioner.sh` |
+| FOG post-download hook | `haar/install/postdownload/haar-inject-provisioner.sh` |
+| Configuration template | `haar/config/haar-provisioning.env.example` |
 | BitLocker/AD analysis | `docs/BITLOCKER-AD.md` |
 | Imaging math | `docs/MULTICAST-100.md` |

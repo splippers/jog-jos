@@ -1,15 +1,15 @@
 # JOS research — a drop-in, Secure Boot-compatible replacement for FOS
 
-**Scope (decided 2026-10-26):** JOS replaces FOS only; FOG is used as upstream ships it. MIST is not a FOG replacement: it is the whole stack, an Ubuntu-powered imaging laptop running stock FOG with JOS as the Secure Boot-enabled FOS replacement. MIST (laptop) work is handled by Office Claude; JOS work stays with the JOS session. Success criterion: JOS does everything FOS does, so FOG cannot tell the difference.
+**Scope (decided 2026-10-26):** JOS replaces FOS only; FOG is used as upstream ships it. HAAR is not a FOG replacement: it is the whole stack, an Ubuntu-powered imaging laptop running stock FOG with JOS as the Secure Boot-enabled FOS replacement. HAAR (laptop) work is handled by Office Claude; JOS work stays with the JOS session. Success criterion: JOS does everything FOS does, so FOG cannot tell the difference.
 
-Merged 2026-10-25 from: `MIST` (server appliance), `JOS` (client runtime, formerly the `jos-client` submodule and a separate `jos` repo), plus references in `fog-ambulance`, `JONOTRON_CONTEXT.md` and `craic/`.
+Merged 2026-10-25 from: `HAAR` (server appliance), `JOS` (client runtime, formerly the `jos-client` submodule and a separate `jos` repo), plus references in `fog-ambulance`, `JONOTRON_CONTEXT.md` and `craic/`.
 
 ## 1. What each piece is
 
 | Piece | Role | Where now |
 |-------|------|-----------|
-| **MIST** — Mobile Imaging System Toolkit | Portable FOG server (Ubuntu 26.04, native FOG under `/opt/fog`). dnsmasq DHCP/TFTP bound only to a USB Ethernet NIC so it can't leak onto a corporate LAN. Autoinstall ISOs, first-boot wizard, Chromium kiosk, edge/primary cluster roles. | repo root |
-| **JOS** — MIST OS | Replacement for FOG's FOS client. BusyBox initramfs on a signed Ubuntu kernel: DHCP `siaddr` → FOG server, REST register/inventory, task runner, partclone unicast, udpcast multicast with a weak-link watchdog, destructive writes gated by `JOS_IMAGING_ALLOW_DISK_WRITE`. | `jos/` |
+| **HAAR** — Mobile Imaging System Toolkit | Portable FOG server (Ubuntu 26.04, native FOG under `/opt/fog`). dnsmasq DHCP/TFTP bound only to a USB Ethernet NIC so it can't leak onto a corporate LAN. Autoinstall ISOs, first-boot wizard, Chromium kiosk, edge/primary cluster roles. | repo root |
+| **JOS** — HAAR OS | Replacement for FOG's FOS client. BusyBox initramfs on a signed Ubuntu kernel: DHCP `siaddr` → FOG server, REST register/inventory, task runner, partclone unicast, udpcast multicast with a weak-link watchdog, destructive writes gated by `JOS_IMAGING_ALLOW_DISK_WRITE`. | `jos/` |
 | **FOG-Ambulance** | Separate live-USB AI rescue for FOG-deployed machines. Related, not merged. | `Projects/fog-ambulance` |
 
 `jurassic-os` is **unrelated** (a Jurassic Park web toy); it only shares the initials.
@@ -17,7 +17,7 @@ Merged 2026-10-25 from: `MIST` (server appliance), `JOS` (client runtime, former
 ## 2. Merge notes
 
 - JOS history is subtree-merged into `jos/` on branch `unify-jos`; the `jos-client` submodule is removed. The submodule was an older snapshot (Apr 27); the standalone `jos` repo had everything newer (unicast imaging, FOG task runner, parity docs), so `jos/` is the canonical copy.
-- Old checkouts at `Projects/jos` and `Projects/mist` are untouched. Nothing was pushed. GitHub `splippers/JOS` still exists separately until you decide to archive it.
+- Old checkouts at `Projects/jos` and `Projects/haar` are untouched. Nothing was pushed. GitHub `splippers/JOS` still exists separately until you decide to archive it.
 - Vendored binaries (`jos/initrd/bin`, `jos/build/tmp`, `jos/build/out/initrd.img`) are gitignored and live only in the old `Projects/jos` checkout; rebuild with `jos/build/build-initrd.sh`.
 
 ## 3. Secure Boot: findings and status
@@ -29,7 +29,7 @@ Fleet is pure Dell (Latitude/Precision), all UEFI. The design intent was right (
 | 1 | Default bootfile `snponly.efi` is unsigned, so Secure Boot firmware refuses it | **Fixed**: default is `ubuntu-signed/shimx64.efi` in env example, wizard, first-boot and dnsmasq render |
 | 2 | Docs put iPXE before shim; unsigned iPXE can't be the first stage | **Fixed**: docs and rules now say firmware PXE → shim → grubnetx64 → signed kernel → JOS. iPXE is Secure Boot-off only |
 | 3 | `boot.ipxe` loads the kernel directly | **Marked** Secure Boot-off only |
-| 4 | No `grub.cfg` or kernel/initrd staging | **Fixed**: `scripts/mist-stage-jos-boot.sh`, run by `mist-provision-stack.sh` |
+| 4 | No `grub.cfg` or kernel/initrd staging | **Fixed**: `scripts/haar-stage-jos-boot.sh`, run by `haar-provision-stack.sh` |
 | 5 | Kernel lockdown rejects unsigned modules, so NIC/storage drivers must match the signed kernel | **Fixed**: `modules.img` is built from the same kernel package (default profile `full`: 873 modules, 37 MB: all wired/USB NICs, NVMe, SATA, SCSI/SAS, RAID/dm, USB, Thunderbolt, HID, filesystems; `JOS_PROFILE=small` gives the old 28) |
 | 6 | Shim cert expiry (Microsoft 2011 CA) | **Open**: staging prefers the dual-signed shim; needs a test on your oldest Latitudes |
 | 7 | MOK enrolment | **Avoided**: nothing needs it |
@@ -57,7 +57,7 @@ FOS maintainers describe this exact pattern (Canonical shim + Ubuntu kernel + un
 
 ### Tested against a real FOG server (2026-10-26)
 
-FOG **1.5.10.2518** (`stable` branch; 1.6.0-RC-17 exists but is a release candidate) installed natively on this workstation with `install/fog-native-install.sh`: source in `/opt/fogproject`, FOG in `/opt/fog`, bound to a bridge `jog0` (10.99.0.1/24). MIST's own `mist-render-dnsmasq.sh` provided DHCP; FOG's tftpd served the staged chain. A QEMU/OVMF VM with **Secure Boot enforcing** (Microsoft keys) PXE-booted it:
+FOG **1.5.10.2518** (`stable` branch; 1.6.0-RC-17 exists but is a release candidate) installed natively on this workstation with `install/fog-native-install.sh`: source in `/opt/fogproject`, FOG in `/opt/fog`, bound to a bridge `jog0` (10.99.0.1/24). HAAR's own `haar-render-dnsmasq.sh` provided DHCP; FOG's tftpd served the staged chain. A QEMU/OVMF VM with **Secure Boot enforcing** (Microsoft keys) PXE-booted it:
 
 | Step | Result |
 |------|--------|
@@ -69,11 +69,11 @@ FOG **1.5.10.2518** (`stable` branch; 1.6.0-RC-17 exists but is a release candid
 
 Not covered: Windows/NTFS images, multicast, real Dell hardware, VMD/NVMe, snapins, 4Kn disks.
 
-### Problems found and fixed in MIST along the way
+### Problems found and fixed in HAAR along the way
 
 1. **`fog-native-install.sh` cloned FOG into `/opt/fog`**, the directory the installer copies itself into, so it died with "same file" errors and left a damaged tree. It now clones to `/opt/fogproject`.
 2. **The FOG installer opens its ports to Anywhere in ufw** (80, 443, 69, 21, 2049, 111, 20048). On a laptop on a real LAN that exposes NFS, FTP and the web UI. The script now removes those rules and allows them on the imaging NIC only. The allow rules must be **inserted at the top** (`ufw insert 1`): this host had an older `111 DENY Anywhere` above them and NFS silently timed out.
-3. **Shim fetches `grubx64.efi` from the TFTP root**, not from the `ubuntu-signed/` sub-directory, when the boot file comes from a real DHCP server (it worked with QEMU's built-in one). `mist-stage-jos-boot.sh` now serves the pair from both places.
+3. **Shim fetches `grubx64.efi` from the TFTP root**, not from the `ubuntu-signed/` sub-directory, when the boot file comes from a real DHCP server (it worked with QEMU's built-in one). `haar-stage-jos-boot.sh` now serves the pair from both places.
 4. `resolvectl dns` parsing returned the interface index ("3") as the DNS server; now matches an IPv4 address.
 5. **FOS silently skips the restore when an image's `format` is empty.** `writeImage` has no branch for it, so a deploy "succeeds" (task complete) with nothing written. Images created through the FOG API must set `format` (5 = zstd). Images made in the web UI get it automatically. Worth a guard in any tooling that creates images.
 
@@ -81,10 +81,10 @@ Not covered: Windows/NTFS images, multicast, real Dell hardware, VMD/NVMe, snapi
 
 1. **One physical Dell** with Secure Boot on and a USB3 NIC: confirm udev loads the driver from `modules.img` and the disk is seen (VMD on and off).
 2. **A Windows image** capture and deploy, then confirm the deployed Windows still boots with Secure Boot on (FOS ADR 0019: Microsoft 2023 CA db update on Dell OptiPlex).
-3. **Kernel upgrades:** `modules.img` is pinned to the staged kernel. Restage after updates; `mist-doctor.sh` flags a mismatch.
+3. **Kernel upgrades:** `modules.img` is pinned to the staged kernel. Restage after updates; `haar-doctor.sh` flags a mismatch.
 4. **Retire the legacy shell client** (`jos/initrd/scripts/jos-*.sh`).
 5. **Licence:** FOS is GPL-3. The built initrd contains it, so it is gitignored and not distributed from this repo.
-6. **Pilot:** one MIST per imaging table (`docs/CLUSTER.md`, pattern 1).
+6. **Pilot:** one HAAR per imaging table (`docs/CLUSTER.md`, pattern 1).
 
 ## 4b. What "replaces FOS flawlessly" needs
 
@@ -93,7 +93,7 @@ FOS has two halves, and only one of them is ours:
 - **Userland** (`fog.*` scripts, partclone, udpcast, resize/LVM/4Kn logic): identical, because JOS runs FOS's own userland. Bump `FOS_TAG` to track upstream fixes; re-run the VM test after each bump.
 - **Kernel and boot menu**, where JOS differs and parity must be earned:
   1. **Drivers.** FOS builds its drivers into its own kernel. JOS now ships the `full` module profile (873 modules, 37 MB; wireless and GPU excluded) plus rtl_nic/tigon/bnx2/bnx2x/e100 firmware. Tested in an enforcing-Secure-Boot VM with an emulated Intel e1000e NIC and an NVMe disk (not virtio): deploy completed and checksums matched. Still needs a Dell hardware matrix test; out-of-tree Realtek drivers FOS carries (e.g. r8125/r8126 2.5G) are not covered by in-tree modules.
-  2. **Boot menu.** FOG's iPXE menu (registration, inventory, debug, etc.) does not exist under Secure Boot, so `mist-stage-jos-boot.sh` now emits GRUB entries mirroring the stock FOS USB image: deploy/capture, full registration (`mode=manreg`), quick registration (`mode=autoreg`), system info, debug. Not yet exercised against FOG.
+  2. **Boot menu.** FOG's iPXE menu (registration, inventory, debug, etc.) does not exist under Secure Boot, so `haar-stage-jos-boot.sh` now emits GRUB entries mirroring the stock FOS USB image: deploy/capture, full registration (`mode=manreg`), quick registration (`mode=autoreg`), system info, debug. Not yet exercised against FOG.
   3. **Unregistered hosts.** Entry 1 on an unknown machine errors ("Invalid Host") exactly as the FOS USB image does; the technician must pick registration. Decide whether JOS should do better than FOS here.
   4. **Not supported under Secure Boot:** iPXE jumpstart (unsigned). Memtest86+ is offered as "6. Memtest86+ (Needs Secure Boot off)" when `/boot/mt86+x64` (package memtest86+) exists; with Secure Boot on, GRUB refuses it, FOG's PXE menu timeout/hidden-menu behaviour, per-host PXE menu overrides (they are iPXE).
   5. **Kernel security model.** Ubuntu's kernel enforces lockdown under Secure Boot; FOS's does not yet (FOS ADR 0010). Check no `fog.*` script needs `/dev/mem`, `iopl` or `kexec` (inventory via `dmidecode` already uses sysfs).
@@ -103,10 +103,10 @@ FOS has two halves, and only one of them is ours:
 
 - Fleet is pure Dell; no other vendors' firmware quirks are in scope.
 - WENDY/CLINIC (LLM diagnosis gate) was a joke and is excluded from this repo.
-- JOS replaces FOS only, FOG stays upstream, and MIST is the whole stack (Ubuntu imaging laptop + FOG + JOS), with laptop-side work owned by Office Claude (Jon, 2026-10-26: "it doesn't make sense to reinvent that particular wheel").
+- JOS replaces FOS only, FOG stays upstream, and HAAR is the whole stack (Ubuntu imaging laptop + FOG + JOS), with laptop-side work owned by Office Claude (Jon, 2026-10-26: "it doesn't make sense to reinvent that particular wheel").
 - JOS reuses FOS userland rather than reimplementing the FOG client (Jon: "don't reinvent the wheel").
 - JOS lives in `jos/`; the standalone `splippers/JOS` repo is superseded once this branch is pushed.
 
 ## 6. Source trail
 
-`mist/README.md`, `mist/docs/{CLUSTER,ISO-BUILD}.md`, `jos/docs/{architecture,fos-fork-refactor-plan,fos-fog-parity-checklist}.md`, `jos/.cursor/rules/jos-unified.mdc` (the authoritative JOS rules), `JONOTRON_CONTEXT.md` (ODIN/MIST flagged "sellable today; WDS is dying"), `UNIVERSE_UNDERSTANDING.md`.
+`haar/README.md`, `haar/docs/{CLUSTER,ISO-BUILD}.md`, `jos/docs/{architecture,fos-fork-refactor-plan,fos-fog-parity-checklist}.md`, `jos/.cursor/rules/jos-unified.mdc` (the authoritative JOS rules), `JONOTRON_CONTEXT.md` (ODIN/HAAR flagged "sellable today; WDS is dying"), `UNIVERSE_UNDERSTANDING.md`.

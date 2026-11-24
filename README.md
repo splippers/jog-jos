@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="branding/mist-jos-lockup.svg" alt="Brume + JOS — corporate reimaging, free and open" width="820">
+  <img src="branding/haar-jos-lockup.svg" alt="Brume + JOS — corporate reimaging, free and open" width="820">
 </p>
 
 <h1 align="center">Brume + JOS</h1>
@@ -8,7 +8,7 @@
 
 <p align="center">
   A free, portable, Secure Boot imaging appliance built on Ubuntu, FOG, and JOS, with
-  Android monitoring and management through Mistmetry.<br>
+  Android monitoring and management through Haarmetry.<br>
   Reimage a room of corporate laptops over multicast, then drive the full hybrid-join pipeline:
   drivers, domain join, AD groups, and BitLocker escrow.
 </p>
@@ -121,14 +121,14 @@ The exact attributes, LDAP path, PowerShell commands, and the recommended altern
 
 | Repo | Role | Runs on |
 |---|---|---|
-| **[mist](https://github.com/splippers/mist)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the Brume laptop (server) |
+| **[haar](https://github.com/splippers/haar)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the Brume laptop (server) |
 | **[jos](https://github.com/splippers/jos)** | The client runtime: Secure Boot chain, initrd build, GRUB menu, FOS userland, local-boot fallback, weak-link watchdog | the machine being imaged (client) |
-| **[mistmetry](https://github.com/splippers/mistmetry)** *(private)* | Android technician app, enrollment QR, authenticated mobile API, imaging dashboard and confirmed task controls | technician phone and Brume laptop |
-| **jog-jos** (this repo) | Integration: pins `mist` and `jos` at known-good commits, combined docs, end-to-end design, roadmap | n/a |
+| **[haarmetry](https://github.com/splippers/haarmetry)** *(private)* | Android technician app, enrollment QR, authenticated mobile API, imaging dashboard and confirmed task controls | technician phone and Brume laptop |
+| **jog-jos** (this repo) | Integration: pins `haar` and `jos` at known-good commits, combined docs, end-to-end design, roadmap | n/a |
 
-**Rule of thumb:** if it configures the laptop or the FOG server, it belongs in `mist`. If it runs on, or
+**Rule of thumb:** if it configures the laptop or the FOG server, it belongs in `haar`. If it runs on, or
 builds for, the imaged machine, it belongs in `jos`. Phone UX and the authenticated mobile API belong in
-`mistmetry`. If it describes how the components fit together, it belongs here.
+`haarmetry`. If it describes how the components fit together, it belongs here.
 
 ---
 
@@ -142,35 +142,35 @@ cd jog-jos
 jos/build/build-from-fos.sh
 
 # 2. Install the appliance helpers
-sudo JOS_DIR=$PWD/jos mist/install/mist-install.sh
+sudo JOS_DIR=$PWD/jos haar/install/haar-install.sh
 
 # 3. Configure the imaging network and install FOG
-sudo mist-install-wizard
+sudo haar-install-wizard
 
 # 4. Stage the Secure Boot chain and verify it
-sudo mist-stage-jos-boot.sh
-mist-doctor.sh
+sudo haar-stage-jos-boot.sh
+haar-doctor.sh
 ```
 
-For the private Android client, clone Mistmetry separately with an account that has repository access.
+For the private Android client, clone Haarmetry separately with an account that has repository access.
 The mobile API is installed only after the management Wi-Fi interface and address are configured; see
-the Mistmetry installation guide.
+the Haarmetry installation guide.
 
 Then, on the appliance:
 
 ```bash
 # Driver share (Samba) — read-only for clients, write for the upload account
-sudo mist-driver-share.sh --apply
+sudo haar-driver-share.sh --apply
 
 # Multicast profile for the 100-laptop reference design
-sudo mist-multicast-tune.sh --check
-sudo mist-multicast-tune.sh --apply
+sudo haar-multicast-tune.sh --check
+sudo haar-multicast-tune.sh --apply
 
 # Default PXE entry auto-joins a waiting multicast session
-sudo mist-autojoin-setup.sh --apply
+sudo haar-autojoin-setup.sh --apply
 
 # Corporate provisioning payload + FOG post-download injection
-sudo mist-corporate-setup            # writes /etc/mist/provisioning.env, installs the payload
+sudo haar-corporate-setup            # writes /etc/haar/provisioning.env, installs the payload
 ```
 
 On a Windows 11 workstation with internet access, sync driver packs for every model FOG has inventoried:
@@ -183,7 +183,7 @@ On a Windows 11 workstation with internet access, sync driver packs for every mo
 .\Sync-FOGDriverPacks.ps1
 ```
 
-The payload scripts live in [`mist/provisioner/windows/`](https://github.com/splippers/mist/tree/main/provisioner/windows).
+The payload scripts live in [`haar/provisioner/windows/`](https://github.com/splippers/haar/tree/main/provisioner/windows).
 
 ---
 
@@ -216,7 +216,7 @@ it touches production devices.
 | [`docs/BRAND.md`](docs/BRAND.md) | Brume/JOS naming, voice, palette, and asset usage |
 | [`ROADMAP.md`](ROADMAP.md) | The longer-term plan and the decisions still open |
 | [`jos/README.md`](https://github.com/splippers/jos) | The client runtime internals |
-| [`mist/README.md`](https://github.com/splippers/mist) | The appliance internals |
+| [`haar/README.md`](https://github.com/splippers/haar) | The appliance internals |
 
 ---
 

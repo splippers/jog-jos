@@ -12,7 +12,7 @@ machine registers itself, joins one multicast stream, and images.
 F12 > Network Boot
   └─ dnsmasq on enp2s0 (10.99.0.1) hands out 10.99.0.x + PXE boot file
       └─ signed shim -> GRUB -> default "JOS Image Deploy/Capture"
-          └─ S96jos-taskcheck calls /fog/service/mist-autojoin.php with its MAC
+          └─ S96jos-taskcheck calls /fog/service/haar-autojoin.php with its MAC
               ├─ unknown MAC  -> creates a FOG host (Brume-<mac>) with default modules
               ├─ existing task -> "OK TASK", run it
               └─ one joinable multicast session -> creates a MULTICAST task
@@ -23,12 +23,12 @@ The appliance-side pieces are already installed:
 
 | Piece | File / state |
 |---|---|
-| Auto-join endpoint | `/var/www/html/fog/service/mist-autojoin.php` (now also auto-registers) |
-| Network allow-list | `/etc/mist/autojoin.env` → `10.99.0.0/24` |
+| Auto-join endpoint | `/var/www/html/fog/service/haar-autojoin.php` (now also auto-registers) |
+| Network allow-list | `/etc/haar/autojoin.env` → `10.99.0.0/24` |
 | Client gate | `S96jos-taskcheck` inside `/tftpboot/jos/initrd.img` |
-| DHCP + PXE | `/etc/dnsmasq.d/99-mist-imaging.conf`, `enp2s0` |
+| DHCP + PXE | `/etc/dnsmasq.d/99-haar-imaging.conf`, `enp2s0` |
 | Multicast tunables | `ngmMaxClients=100`, `ngmMaxBitrate=800m`, rendezvous `10.99.0.1` |
-| Arming helper | `sudo mist-zero-touch-arm` |
+| Arming helper | `sudo haar-zero-touch-arm` |
 
 ---
 
@@ -52,7 +52,7 @@ The appliance-side pieces are already installed:
 3. **Arm the multicast job** (this starts `udp-sender` waiting for 10 receivers):
 
    ```bash
-   sudo mist-zero-touch-arm
+   sudo haar-zero-touch-arm
    ```
 
    Expected output includes `armed session N: 'Brume-DELL-ZERO', image
@@ -114,7 +114,7 @@ sudo mysql -D fog -e "SELECT msID,msName,msState,msPercent FROM multicastSession
 `msState=4` means complete. The host records remain in FOG with their images
 assigned — subsequent boots of those machines will simply re-image if a task
 is queued, or boot local disk when no session is armed. To re-image another
-batch, run `sudo mist-zero-touch-arm` again; it retires the old session and
+batch, run `sudo haar-zero-touch-arm` again; it retires the old session and
 creates a fresh one.
 
 ---
@@ -126,9 +126,9 @@ creates a fresh one.
 | Laptop boots Windows, not PXE | Firmware boot order / F12 menu selection; Secure Boot is fine (signed shim). |
 | `No DHCP` / no 10.99.0.x address | `ip -br link show enp2s0` must show carrier; `systemctl status dnsmasq`. |
 | Stuck at GRUB menu | Default entry is 1 with 5 s timeout. A manual choice means the keyboard was touched. |
-| Console says `AMBIGUOUS ...` | More than one joinable multicast session. Run `sudo mist-zero-touch-arm` to retire stale ones. |
-| Console says `NONE` | No armed session. Run `sudo mist-zero-touch-arm`. |
-| Console says `ERROR host not registered` | Endpoint file is stale. Reinstall: `sudo mist-autojoin-setup --apply`. |
+| Console says `AMBIGUOUS ...` | More than one joinable multicast session. Run `sudo haar-zero-touch-arm` to retire stale ones. |
+| Console says `NONE` | No armed session. Run `sudo haar-zero-touch-arm`. |
+| Console says `ERROR host not registered` | Endpoint file is stale. Reinstall: `sudo haar-autojoin-setup --apply`. |
 | Client reboots immediately, never reaches the queue screen | A previous multicast task was left in an in-progress state, so autojoin answers `OK TASK` and `hostinfo` has no live session to return. The endpoint now retires such tasks automatically; if it persists, check `SELECT taskID,taskStateID FROM tasks WHERE taskHostID=<id>` and re-arm. |
 | `Interface not ready, waiting...` in multicast.log | `FOG_WEB_HOST` must be `10.99.0.1` and `ip -4 addr` must list it. Restart `FOGMulticastManager.service`. |
 | Sender dies immediately with `execute() on false` | Transient fork/DB race. `sudo systemctl restart FOGMulticastManager.service`, then re-arm. |
@@ -137,7 +137,7 @@ creates a fresh one.
 Health check for the endpoint alone (side-effect free):
 
 ```bash
-sudo mist-autojoin-setup --check
+sudo haar-autojoin-setup --check
 ```
 
 That POSTs `probe=1` and expects `OK ALIVE`. It never supplies a MAC, so it
@@ -148,7 +148,7 @@ remove the record it creates:
 
 ```bash
 curl -s -X POST --data 'mac=00:11:22:33:44:55' \
-  http://127.0.0.1/fog/service/mist-autojoin.php
+  http://127.0.0.1/fog/service/haar-autojoin.php
 sudo mysql -D fog -e "DELETE FROM hosts WHERE hostName='Brume-22334455';"
 ```
 
@@ -162,7 +162,7 @@ throwaway client's task association does not consume a slot in the session.
 * The endpoint is unauthenticated like FOG's own PXE service endpoints, but it
   only acts on the MAC the client sends and only joins sessions FOG itself
   calls joinable.
-* It is restricted to `10.99.0.0/24` plus localhost (`/etc/mist/autojoin.env`).
+* It is restricted to `10.99.0.0/24` plus localhost (`/etc/haar/autojoin.env`).
 * No FOG credential is stored on the client or in the initrd.
 * Image assignment comes from the armed session, so there is exactly one
   source of truth for what gets deployed.
