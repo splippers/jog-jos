@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Haar
+Description=Haar boot splash: low-poly mountains in sea fog
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/haar
+ScriptFile=/usr/share/plymouth/themes/haar/haar.script

@@ -1,0 +1,26 @@
+# Haar Plymouth theme. Background scaled to cover the screen; optional logo.png
+# (drop one in this folder) is centred in the empty upper area. No text, no brand name.
+bg = Image("background.png");
+sw = Window.GetWidth(); sh = Window.GetHeight();
+scale = Math.Max(sw / bg.GetWidth(), sh / bg.GetHeight());
+bg = bg.Scale(bg.GetWidth() * scale, bg.GetHeight() * scale);
+bg_sprite = Sprite(bg);
+bg_sprite.SetPosition((sw - bg.GetWidth()) / 2, (sh - bg.GetHeight()) / 2, -100);
+
+logo = Image("logo.png");
+if (logo) {
+    ls = Math.Min(1, (sw * 0.4) / logo.GetWidth());
+    logo = logo.Scale(logo.GetWidth() * ls, logo.GetHeight() * ls);
+    logo_sprite = Sprite(logo);
+    logo_sprite.SetPosition((sw - logo.GetWidth()) / 2, sh * 0.22, 10);
+}
+
+# Slim progress bar low in the fog.
+bar_w = sw * 0.3; bar_h = 4;
+fill = Sprite();
+fun progress_cb(duration, progress) {
+    w = Math.Max(1, bar_w * progress);
+    fill.SetImage(Image.Scale(Image("bar.png"), w, bar_h));
+    fill.SetPosition((sw - bar_w) / 2, sh * 0.93, 20);
+}
+Plymouth.SetBootProgressFunction(progress_cb);
