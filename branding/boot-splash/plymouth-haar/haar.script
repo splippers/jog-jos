@@ -1,5 +1,6 @@
-# Haar Plymouth theme. Background scaled to cover the screen; optional logo.png
-# (drop one in this folder) is centred in the empty upper area. No text, no brand name.
+# Haar Plymouth theme. Background covers the screen; the emblem (logo.png, no text) sits in the
+# middle and breathes: slow opacity pulse and a gentle float, plus a slim progress bar.
+# Script-driven, so it adds no animation frames and is not part of Secure Boot's signed chain.
 bg = Image("background.png");
 sw = Window.GetWidth(); sh = Window.GetHeight();
 scale = Math.Max(sw / bg.GetWidth(), sh / bg.GetHeight());
@@ -8,19 +9,34 @@ bg_sprite = Sprite(bg);
 bg_sprite.SetPosition((sw - bg.GetWidth()) / 2, (sh - bg.GetHeight()) / 2, -100);
 
 logo = Image("logo.png");
-if (logo) {
-    ls = Math.Min(1, (sw * 0.4) / logo.GetWidth());
-    logo = logo.Scale(logo.GetWidth() * ls, logo.GetHeight() * ls);
-    logo_sprite = Sprite(logo);
-    logo_sprite.SetPosition((sw - logo.GetWidth()) / 2, sh * 0.22, 10);
-}
+size = Math.Min(sw, sh) * 0.36;
+logo = logo.Scale(size, size);
+logo_sprite = Sprite(logo);
+logo_x = (sw - size) / 2;
+logo_y = (sh - size) / 2;
+logo_sprite.SetPosition(logo_x, logo_y, 10);
 
-# Slim progress bar low in the fog.
 bar_w = sw * 0.3; bar_h = 4;
+bar_img = Image("bar.png");
 fill = Sprite();
+fill_w = 1;
+fill.SetPosition((sw - bar_w) / 2, sh * 0.9, 20);
+fill.SetImage(bar_img.Scale(1, bar_h));
+
+t = 0;
+fun refresh_cb() {
+    t = t + 1;
+    pulse = Math.Sin(t / 40.0);
+    logo_sprite.SetOpacity(0.82 + 0.18 * pulse);
+    logo_sprite.SetPosition(logo_x, logo_y + pulse * 6, 10);
+}
+Plymouth.SetRefreshFunction(refresh_cb);
+
 fun progress_cb(duration, progress) {
     w = Math.Max(1, bar_w * progress);
-    fill.SetImage(Image.Scale(Image("bar.png"), w, bar_h));
-    fill.SetPosition((sw - bar_w) / 2, sh * 0.93, 20);
+    if (Math.Abs(w - fill_w) > 2) {
+        fill_w = w;
+        fill.SetImage(bar_img.Scale(w, bar_h));
+    }
 }
 Plymouth.SetBootProgressFunction(progress_cb);
