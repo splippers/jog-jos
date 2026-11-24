@@ -1,5 +1,5 @@
 # Haar Plymouth theme. Background covers the screen; the emblem (logo.png, no text) sits in the
-# middle and breathes: slow opacity pulse and a gentle float, plus a slim progress bar.
+# middle, then clones itself into two and merges back (the imaging idea), with a slim progress bar.
 # Script-driven, so it adds no animation frames and is not part of Secure Boot's signed chain.
 bg = Image("background.png");
 sw = Window.GetWidth(); sh = Window.GetHeight();
@@ -9,12 +9,15 @@ bg_sprite = Sprite(bg);
 bg_sprite.SetPosition((sw - bg.GetWidth()) / 2, (sh - bg.GetHeight()) / 2, -100);
 
 logo = Image("logo.png");
-size = Math.Min(sw, sh) * 0.36;
+size = Math.Min(sw, sh) * 0.30;
 logo = logo.Scale(size, size);
-logo_sprite = Sprite(logo);
+logo_a = Sprite(logo);   # the original
+logo_b = Sprite(logo);   # the clone
 logo_x = (sw - size) / 2;
 logo_y = (sh - size) / 2;
-logo_sprite.SetPosition(logo_x, logo_y, 10);
+logo_a.SetPosition(logo_x, logo_y, 10);
+logo_b.SetPosition(logo_x, logo_y, 9);
+logo_b.SetOpacity(0);
 
 bar_w = sw * 0.3; bar_h = 4;
 bar_img = Image("bar.png");
@@ -23,12 +26,23 @@ fill_w = 1;
 fill.SetPosition((sw - bar_w) / 2, sh * 0.9, 20);
 fill.SetImage(bar_img.Scale(1, bar_h));
 
+# One cycle is 400 frames (about 8 s): hold one, split into two, hold two, merge back.
 t = 0;
+fun ease(p) { return (1 - Math.Cos(Math.Pi * p)) / 2; }
 fun refresh_cb() {
     t = t + 1;
-    pulse = Math.Sin(t / 40.0);
-    logo_sprite.SetOpacity(0.82 + 0.18 * pulse);
-    logo_sprite.SetPosition(logo_x, logo_y + pulse * 6, 10);
+    if (t >= 400) t = 0;
+    if (t < 80) split = 0;
+    else if (t < 170) split = ease((t - 80) / 90.0);
+    else if (t < 310) split = 1;
+    else if (t < 400) split = 1 - ease((t - 310) / 90.0);
+    shift = split * size * 0.62;
+    pulse = Math.Sin(t / 25.0);
+    glow = 0.88 + 0.12 * pulse;
+    logo_a.SetOpacity(glow);
+    logo_a.SetPosition(logo_x - shift, logo_y, 10);
+    logo_b.SetOpacity(split * glow);
+    logo_b.SetPosition(logo_x + shift, logo_y, 9);
 }
 Plymouth.SetRefreshFunction(refresh_cb);
 
