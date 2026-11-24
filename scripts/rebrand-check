@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+import json, os, re, sys
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+names = [r'\bMIST\b', r'\bMISTMETRY\b', r'\bWISP\b']
+allow = {'brand/brand.env','brand/brand.json','MIGRATION.md','REBRAND.md','scripts/rebrand-check','docs/JOG-JOS-RESEARCH.md','docs/BRAND.md'}
+bad=[]
+for dp,ds,fs in os.walk(root):
+    ds[:] = [d for d in ds if d not in ['.git','build','.gradle','node_modules','__pycache__']]
+    for f in fs:
+        p=os.path.join(dp,f)
+        rel=os.path.relpath(p,root).replace(os.sep,'/')
+        if rel in allow: continue
+        try: b=open(p,'rb').read()
+        except: continue
+        if b'\0' in b[:4096]: continue
+        s=b.decode('utf-8',errors='ignore')
+        for n in names:
+            if re.search(n,s):
+                bad.append(f'{rel}: {n}')
+                break
+if bad:
+    print('rebrand-check failed:')
+    for b in bad[:200]: print(b)
+    sys.exit(1)
+print('rebrand-check ok')

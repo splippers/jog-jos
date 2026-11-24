@@ -10,8 +10,8 @@
 > domain join → Entra hybrid join → AD groups → BitLocker → escrow verified → `COMPLETE`. This is a
 > resumable state machine and is **not** part of the 5-minute imaging claim.
 
-This document describes phase 2 and how the MIST appliance hands off to it. The default design is
-**air-gapped**: imaging and driver installation finish on the isolated MIST network, then the device waits in
+This document describes phase 2 and how the Brume appliance hands off to it. The default design is
+**air-gapped**: imaging and driver installation finish on the isolated Brume network, then the device waits in
 `AWAITING_CORPORATE` until it reaches the corporate network.
 
 ---
@@ -19,17 +19,17 @@ This document describes phase 2 and how the MIST appliance hands off to it. The 
 ## 1. The pipeline at a glance
 
 ```text
-                         PHASE 1 (MIST/JOS + FOG)
+                         PHASE 1 (Brume/JOS + FOG)
  ┌─────────────────────────────────────────────────────────────────────────────┐
  │ PXE → shim → GRUB → signed kernel → JOS initrd                              │
  │      → FOG multicast / unicast deploy                                      │
  │      → image written to disk                                               │
  │      → post-download script mounts Windows partition                       │
- │      → copies C:\ProgramData\MIST\* + C:\Windows\Setup\Scripts\SetupComplete │
+ │      → copies C:\ProgramData\Brume\* + C:\Windows\Setup\Scripts\SetupComplete │
  └─────────────────────────────────────────────────────────────────────────────┘
                                        │
                                        ▼  first Windows boot / OOBE
-                         PHASE 2a (MIST Provisioner, SYSTEM)
+                         PHASE 2a (Brume Provisioner, SYSTEM)
  ┌─────────────────────────────────────────────────────────────────────────────┐
  │ SetupComplete.cmd → Start-JOGProvisioning.ps1                               │
  │                                                                             │
@@ -60,7 +60,7 @@ This document describes phase 2 and how the MIST appliance hands off to it. The 
 ```
 
 The device can reboot between stages. Every stage is idempotent and recorded in
-`C:\ProgramData\MIST\Provisioning.json`.
+`C:\ProgramData\Brume\Provisioning.json`.
 
 ---
 
@@ -119,7 +119,7 @@ phase has reached `COMPLETE`.
 The FOG post-download script installs this directory on the Windows partition:
 
 ```text
-C:\ProgramData\MIST\
+C:\ProgramData\Brume\
 ├── Start-JOGProvisioning.ps1          # orchestrator / state machine
 ├── Write-JOGHandoff.ps1               # AWAITING_CORPORATE note, shortcut, sanitised config
 ├── Resume-JOGCorporateEnrollment.ps1  # corporate-LAN resume + join credential prompt
@@ -160,17 +160,17 @@ The appliance renders `/etc/mist/provisioning.env` into
   "DomainNetbios": "CORP",
   "DomainJoin": {
     "Mode": "Credential",
-    "BlobPath": "C:\\ProgramData\\MIST\\domainjoin.blob",
+    "BlobPath": "C:\\ProgramData\\Brume\\domainjoin.blob",
     "User": "",
     "Password": "",
-    "OUPath": "OU=Workstations,OU=MIST,DC=corp,DC=example,DC=com"
+    "OUPath": "OU=Workstations,OU=Brume,DC=corp,DC=example,DC=com"
   },
   "HybridJoin": {
     "Enabled": true,
     "TimeoutMinutes": 30
   },
   "Groups": [
-    "MIST-Workstations",
+    "Brume-Workstations",
     "EndpointProtection",
     "DeviceEncryption"
   ],
@@ -208,11 +208,11 @@ The appliance renders `/etc/mist/provisioning.env` into
 |---|---|---|
 | Driver-share read account | `mist-provisioning.json` (ACL: SYSTEM/Administrators) | Read-only; removed by the handoff stage; rotate after provisioning |
 | Domain join account | Prompted by the resume script; written to the ACL-protected config only for the join | Use a delegated, time-limited account; removed at `CLEANUP` |
-| Offline join blob | `C:\ProgramData\MIST\domainjoin.blob` | One blob per computer account; suitable for a single device or per-device blobs |
+| Offline join blob | `C:\ProgramData\Brume\domainjoin.blob` | One blob per computer account; suitable for a single device or per-device blobs |
 | BitLocker PIN | Never in the config by default | User-held, DPAPI-sealed locally, or a secrets manager |
 | AD write account for groups | Not on the device in offline mode | Run `Add-JOGComputerGroups.ps1` from a management host |
 
-The provisioner ACLs `C:\ProgramData\MIST` to `SYSTEM` and `Administrators` at first run. The `HANDOFF` stage
+The provisioner ACLs `C:\ProgramData\Brume` to `SYSTEM` and `Administrators` at first run. The `HANDOFF` stage
 removes the driver-share and domain-join passwords from the config before the device leaves the imaging
 network. The resume script writes a join password back only for the duration of the corporate join, and
 `CLEANUP` removes it again.
@@ -223,7 +223,7 @@ network. The resume script writes a join password back only for the duration of 
 
 ```powershell
 Add-Computer -DomainName corp.example.com `
-  -OUPath "OU=Workstations,OU=MIST,DC=corp,DC=example,DC=com" `
+  -OUPath "OU=Workstations,OU=Brume,DC=corp,DC=example,DC=com" `
   -Credential $credential -Force -Options JoinWithNewName,AccountCreate
 ```
 
@@ -234,7 +234,7 @@ corporate network and does not leave it on the air-gapped device.
 **Offline join (single device or per-device blob):**
 
 ```powershell
-djoin.exe /requestODJ /loadfile C:\ProgramData\MIST\domainjoin.blob `
+djoin.exe /requestODJ /loadfile C:\ProgramData\Brume\domainjoin.blob `
   /windowspath C:\Windows /localos
 ```
 
@@ -258,7 +258,7 @@ access:
 
 `Sync-FOGDriverPacks.ps1`:
 
-1. Queries the read-only MIST model API on the appliance (`http://192.168.254.1:8089/api/models`).
+1. Queries the read-only Brume model API on the appliance (`http://192.168.254.1:8089/api/models`).
 2. Resolves the latest Dell/HP driver-pack catalog entry for each registered model and target OS.
 3. Downloads the vendor pack, verifies it, and extracts the INF tree.
 4. Publishes it to `\\192.168.254.1\Drivers\<model-slug>` using the `driveradmin` account.
@@ -293,8 +293,8 @@ registers the resume task before restarting.
 `Write-JOGHandoff.ps1` runs after hostname and driver installation when `ProvisioningMode` is `AirGapped`:
 
 - Writes `AWAITING-CORPORATE.txt` with the device name, model, serial, domain, and instructions.
-- Puts `MIST - Awaiting Corporate.txt` and `Complete Corporate Enrollment.lnk` on the public desktop.
-- Records `HKLM\SOFTWARE\MIST\State = AWAITING_CORPORATE`.
+- Puts `Brume - Awaiting Corporate.txt` and `Complete Corporate Enrollment.lnk` on the public desktop.
+- Records `HKLM\SOFTWARE\Brume\State = AWAITING_CORPORATE`.
 - Removes the driver-share and domain-join passwords from the config.
 - Leaves `Provisioning.json` and the logs in place for the resume phase.
 
@@ -350,7 +350,7 @@ helper:
 
 ```powershell
 .\Add-JOGComputerGroups.ps1 -ComputerName LT-SITE01-ABC1234 `
-  -Groups MIST-Workstations,EndpointProtection,DeviceEncryption `
+  -Groups Brume-Workstations,EndpointProtection,DeviceEncryption `
   -Credential (Get-Credential) -Server dc01.corp.example.com
 ```
 
@@ -454,7 +454,7 @@ At `COMPLETE` the orchestrator:
 2. Deploy to one VM (or one laptop) with a test OU and a test group.
 3. Verify the air-gapped handoff: `AWAITING_CORPORATE`, desktop shortcut, and no passwords in the config.
 4. Connect the device to the corporate network and run `Resume-JOGCorporateEnrollment.ps1`.
-5. Verify each state transition in `C:\ProgramData\MIST\Provisioning.json` and the logs.
+5. Verify each state transition in `C:\ProgramData\Brume\Provisioning.json` and the logs.
 6. Verify the driver manifest resolved the model and the base pack (`pnputil /enum-drivers`).
 7. Verify `dsregcmd /status` shows hybrid join.
 8. Verify `net group "<group>" /domain` contains the computer.

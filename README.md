@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="branding/mist-jos-lockup.svg" alt="MIST + JOS — corporate reimaging, free and open" width="820">
+  <img src="branding/mist-jos-lockup.svg" alt="Brume + JOS — corporate reimaging, free and open" width="820">
 </p>
 
-<h1 align="center">MIST + JOS</h1>
+<h1 align="center">Brume + JOS</h1>
 
 <p align="center"><strong>Corporate reimaging, without the licence bill.</strong></p>
 
@@ -26,7 +26,7 @@
 
 ## What this is
 
-**MIST** is the appliance: an Ubuntu laptop that runs stock FOG on an isolated imaging network, with a
+**Brume** is the appliance: an Ubuntu laptop that runs stock FOG on an isolated imaging network, with a
 kiosk, a guided installer, and a driver share. **JOS** is the client runtime: the Secure Boot-compatible
 replacement for FOG's FOS that boots on the machine being imaged. Together they turn a blank corporate
 laptop into a domain-joined, policy-ready, encrypted asset without a per-device licence.
@@ -71,7 +71,7 @@ Corporate device refreshes are expensive for reasons that have little to do with
 - Drivers, domain join, group membership, and BitLocker are usually four separate manual steps.
 - The recovery key ends up in a spreadsheet, a share, or nowhere.
 
-MIST + JOS is the opposite: **free and open source, self-contained, and auditable**. It preserves the FOG
+Brume + JOS is the opposite: **free and open source, self-contained, and auditable**. It preserves the FOG
 workflow instead of replacing it, uses the standard Microsoft → Canonical Secure Boot chain, and turns the
 post-image steps into a resumable state machine on the device.
 
@@ -81,9 +81,9 @@ post-image steps into a resumable state machine on the device.
 
 | Stage | Where it runs | What happens |
 |---|---|---|
-| **PXE + Secure Boot** | firmware → MIST | shim → signed GRUB → signed Ubuntu kernel → JOS initramfs |
+| **PXE + Secure Boot** | firmware → Brume | shim → signed GRUB → signed Ubuntu kernel → JOS initramfs |
 | **Multicast image** | JOS client + FOG | one `udp-sender` stream, many `udp-receiver` clients, weak-link watchdog |
-| **Post-download injection** | JOS client, after the image write | mounts the Windows partition and installs the MIST Provisioner payload + `SetupComplete.cmd` |
+| **Post-download injection** | JOS client, after the image write | mounts the Windows partition and installs the Brume Provisioner payload + `SetupComplete.cmd` |
 | **Drivers** | Windows first boot | `Install-JOGDrivers.ps1` reads `manifest.json`, installs the `VMD` base pack + model pack from `\\10.99.0.1\Drivers`, and runs `pnputil` |
 | **Hostname** | Windows first boot | deterministic name from site code + serial/model |
 | **Handoff** | Windows first boot | `AirGapped` default: writes `AWAITING-CORPORATE.txt` + desktop shortcut and removes secrets |
@@ -121,9 +121,9 @@ The exact attributes, LDAP path, PowerShell commands, and the recommended altern
 
 | Repo | Role | Runs on |
 |---|---|---|
-| **[mist](https://github.com/splippers/mist)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the MIST laptop (server) |
+| **[mist](https://github.com/splippers/mist)** | The appliance: Ubuntu autoinstall, native FOG, isolated DHCP/TFTP, kiosk, driver share, multicast tuning, Windows provisioner payload, post-download injection | the Brume laptop (server) |
 | **[jos](https://github.com/splippers/jos)** | The client runtime: Secure Boot chain, initrd build, GRUB menu, FOS userland, local-boot fallback, weak-link watchdog | the machine being imaged (client) |
-| **[mistmetry](https://github.com/splippers/mistmetry)** *(private)* | Android technician app, enrollment QR, authenticated mobile API, imaging dashboard and confirmed task controls | technician phone and MIST laptop |
+| **[mistmetry](https://github.com/splippers/mistmetry)** *(private)* | Android technician app, enrollment QR, authenticated mobile API, imaging dashboard and confirmed task controls | technician phone and Brume laptop |
 | **jog-jos** (this repo) | Integration: pins `mist` and `jos` at known-good commits, combined docs, end-to-end design, roadmap | n/a |
 
 **Rule of thumb:** if it configures the laptop or the FOG server, it belongs in `mist`. If it runs on, or
@@ -213,7 +213,7 @@ it touches production devices.
 | [`docs/CORPORATE-PROVISIONING.md`](docs/CORPORATE-PROVISIONING.md) | The end-to-end pipeline, state machine, credentials, retries, and test plan |
 | [`docs/BITLOCKER-AD.md`](docs/BITLOCKER-AD.md) | Where BitLocker recovery data lives in AD, why the PIN is different, and the recommended design |
 | [`docs/MULTICAST-100.md`](docs/MULTICAST-100.md) | The 100-client math, FOG settings, network design, and benchmark checklist |
-| [`docs/BRAND.md`](docs/BRAND.md) | MIST/JOS naming, voice, palette, and asset usage |
+| [`docs/BRAND.md`](docs/BRAND.md) | Brume/JOS naming, voice, palette, and asset usage |
 | [`ROADMAP.md`](ROADMAP.md) | The longer-term plan and the decisions still open |
 | [`jos/README.md`](https://github.com/splippers/jos) | The client runtime internals |
 | [`mist/README.md`](https://github.com/splippers/mist) | The appliance internals |

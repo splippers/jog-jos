@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-# MIST / JOS Roadmap
+# Brume / JOS Roadmap
 
 > A Secure Boot-capable, FOG-compatible deployment platform designed to transform a blank device into an enterprise-ready asset with minimal technician intervention, complete transparency, and strong operational safeguards.
 
@@ -10,7 +10,7 @@
 
 All domains, hostnames, site codes, organisational units, group names, IP ranges, and other identifiers referenced in this document are examples only.
 
-MIST is designed to be:
+Brume is designed to be:
 
 - Organisation agnostic
 - Directory agnostic
@@ -23,7 +23,7 @@ Deployment-specific values should always be supplied through appliance configura
 
 # Vision
 
-MIST exists to make enterprise device deployment:
+Brume exists to make enterprise device deployment:
 
 - Predictable
 - Repeatable
@@ -31,7 +31,7 @@ MIST exists to make enterprise device deployment:
 - Secure
 - Low-touch
 
-MIST is not intended to replace existing imaging platforms.
+Brume is not intended to replace existing imaging platforms.
 
 Instead it extends and modernises them by providing:
 
@@ -59,7 +59,7 @@ The project is split across four repositories. Each roadmap item belongs to exac
 |---|---|---|
 | [`jos`](https://github.com/splippers/jos) | The client runtime: Secure Boot boot chain, initrd, GRUB menu, FOS parity, local-boot fallback, hardware (driver) support | the machine being imaged |
 | [`mist`](https://github.com/splippers/mist) | The appliance: installer, FOG, DHCP/TFTP, network safety, Operations Centre, `mist-doctor`, configuration | the imaging laptop |
-| [`mistmetry`](https://github.com/splippers/mistmetry) *(private)* | Technician Android app, enrollment, authenticated mobile API, monitoring and confirmed controls | the phone and MIST appliance |
+| [`mistmetry`](https://github.com/splippers/mistmetry) *(private)* | Technician Android app, enrollment, authenticated mobile API, monitoring and confirmed controls | the phone and Brume appliance |
 | [`jog-jos`](https://github.com/splippers/jog-jos) | Integration: pins `mist` and `jos`, end-to-end tests, this roadmap, research | n/a |
 | *(proposed)* `mist-provisioner` | The Windows-side provisioning service and the directory join broker (see Provisioning Framework) | the imaged machine / corporate network |
 
@@ -83,7 +83,7 @@ Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Pl
 | Operations Centre | Partial | Live imaging view built (queued/imaging/complete/failed, per-device progress; needs FOG API tokens, verified with demo and mock data, not a live task). Remaining requirements below are not built |
 | Provisioning framework, directory join, BitLocker, drivers, analytics | Planned | Nothing built |
 | Mistmetry mobile management | Partial | Android dashboard and confirmed FOG controls exist; hidden-Wi-Fi setup, one-time bootstrap enrollment, and per-device PSK lifecycle need end-to-end implementation |
-| QEMU image workshop | Partial | Secure Boot JOS test exists; MIST now has an isolated VM-disk workshop entry point, while complete image capture/deploy workflows remain open |
+| QEMU image workshop | Partial | Secure Boot JOS test exists; Brume now has an isolated VM-disk workshop entry point, while complete image capture/deploy workflows remain open |
 
 ---
 
@@ -101,7 +101,7 @@ Legend: **Done** (built, not necessarily hardware-proven) · **Partial** · **Pl
 - Network Safety Framework: production-network detection, lockdown and recovery.
 - Operations Centre: status header, storage, imaging metrics, audit log.
 - Extended `mist-doctor`.
-- Integrate Mistmetry's API installation and management WLAN lifecycle with MIST.
+- Integrate Mistmetry's API installation and management WLAN lifecycle with Brume.
 - Expand the QEMU workshop into repeatable Secure Boot capture/deploy test workflows.
 
 *Exit criteria:* a technician can install, configure and monitor an appliance without editing files.
@@ -154,7 +154,7 @@ Compatibility is verified against the FOG version the appliance installs, and re
 
 ---
 
-## MIST
+## Brume
 
 A deployment appliance consisting of:
 
@@ -189,7 +189,7 @@ Responsibilities:
 
 ## Infrastructure First
 
-MIST should focus on infrastructure reliability rather than user-facing complexity.
+Brume should focus on infrastructure reliability rather than user-facing complexity.
 
 ---
 
@@ -207,7 +207,7 @@ Every significant activity should be visible through the Operations Centre.
 
 ## Safe By Default
 
-MIST should actively prevent misconfiguration and protect adjacent networks.
+Brume should actively prevent misconfiguration and protect adjacent networks.
 
 ---
 
@@ -287,7 +287,7 @@ Example:
 Stored at:
 
 ```text
-C:\ProgramData\MIST\Provisioning.json
+C:\ProgramData\Brume\Provisioning.json
 ```
 
 ---
@@ -364,7 +364,7 @@ Naming formats shall be configurable.
 
 # Site Profiles
 
-Each MIST appliance maintains a configurable site profile.
+Each Brume appliance maintains a configurable site profile.
 
 Example:
 
@@ -397,7 +397,7 @@ directory_services:
         Provisioning
 ```
 
-MIST should support deferred joining where directory services are unavailable.
+Brume should support deferred joining where directory services are unavailable.
 
 ## Directory Credential Handling
 
@@ -682,7 +682,7 @@ Generates a complete appliance configuration.
 
 ---
 
-# MIST Doctor
+# Brume Doctor
 
 *Current state:* `mist-doctor` exists and checks the staged TFTP boot chain (shim, GRUB, signed kernel, initrd, modules, kernel/module match). The checks below are the Planned extension.
 
@@ -724,7 +724,7 @@ Results available via:
 
 ## Principles
 
-MIST must actively prevent network disruption.
+Brume must actively prevent network disruption.
 
 Protection should not rely solely on operator behaviour.
 
@@ -756,7 +756,7 @@ Imaging Interface
 
 Detection is passive wherever possible. Active probes (for example a DHCP discover) can themselves disturb a production network and must be opt-in. The signals that trigger lockdown must be listed in the configuration, and the design must state how false positives and false negatives are handled.
 
-MIST continuously evaluates:
+Brume continuously evaluates:
 
 ```text
 Existing DHCP Servers
@@ -883,7 +883,7 @@ Benefits:
 The appliance shall automatically log into:
 
 ```text
-MIST Operations Centre
+Brume Operations Centre
 ```
 
 Displayed full-screen in kiosk mode.
@@ -1206,6 +1206,6 @@ with minimal technician intervention and complete visibility throughout the proc
 
 # Guiding Principle
 
-> MIST exists so that doing the right thing is also the easiest thing.
+> Brume exists so that doing the right thing is also the easiest thing.
 
 If deployment feels boring, it is working.

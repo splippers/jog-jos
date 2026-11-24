@@ -139,7 +139,7 @@ the room.
 
 ```text
                          ┌──────────────────────────────┐
-                         │ MIST appliance                │
+                         │ Brume appliance                │
                          │ Ubuntu + FOG + JOS staging   │
                          │ NVMe image store             │
                          │ 10/25 GbE uplink             │

@@ -13,7 +13,7 @@ F12 > Network Boot
   └─ dnsmasq on enp2s0 (10.99.0.1) hands out 10.99.0.x + PXE boot file
       └─ signed shim -> GRUB -> default "JOS Image Deploy/Capture"
           └─ S96jos-taskcheck calls /fog/service/mist-autojoin.php with its MAC
-              ├─ unknown MAC  -> creates a FOG host (MIST-<mac>) with default modules
+              ├─ unknown MAC  -> creates a FOG host (Brume-<mac>) with default modules
               ├─ existing task -> "OK TASK", run it
               └─ one joinable multicast session -> creates a MULTICAST task
                     └─ S99fog / hostinfo sees the task -> udp-receiver joins 10.99.0.1
@@ -55,7 +55,7 @@ The appliance-side pieces are already installed:
    sudo mist-zero-touch-arm
    ```
 
-   Expected output includes `armed session N: 'MIST-DELL-ZERO', image
+   Expected output includes `armed session N: 'Brume-DELL-ZERO', image
    'WIN11-NOV26-18' (id 21), 10 clients, port 63100`.
 
    Confirm the sender is up:
@@ -81,7 +81,7 @@ The appliance-side pieces are already installed:
    sudo tail -30 /opt/fog/log/multicast.log
    ```
 
-   Ten hosts named `MIST-<mac>` should appear with task `MIST-DELL-ZERO`.
+   Ten hosts named `Brume-<mac>` should appear with task `Brume-DELL-ZERO`.
    `udp-sender` transmits as soon as the tenth receiver joins; with ten
    machines already at the menu that is seconds, not the 180 s fallback.
 
@@ -108,7 +108,7 @@ The appliance-side pieces are already installed:
 The session finishes on its own. Verify with:
 
 ```bash
-sudo mysql -D fog -e "SELECT msID,msName,msState,msPercent FROM multicastSessions WHERE msName='MIST-DELL-ZERO';"
+sudo mysql -D fog -e "SELECT msID,msName,msState,msPercent FROM multicastSessions WHERE msName='Brume-DELL-ZERO';"
 ```
 
 `msState=4` means complete. The host records remain in FOG with their images
@@ -149,10 +149,10 @@ remove the record it creates:
 ```bash
 curl -s -X POST --data 'mac=00:11:22:33:44:55' \
   http://127.0.0.1/fog/service/mist-autojoin.php
-sudo mysql -D fog -e "DELETE FROM hosts WHERE hostName='MIST-22334455';"
+sudo mysql -D fog -e "DELETE FROM hosts WHERE hostName='Brume-22334455';"
 ```
 
-`OK JOIN MIST-DELL-ZERO` means both halves work. Re-arm afterwards so the
+`OK JOIN Brume-DELL-ZERO` means both halves work. Re-arm afterwards so the
 throwaway client's task association does not consume a slot in the session.
 
 ---

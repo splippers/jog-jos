@@ -1,0 +1,19 @@
+{
+  "productName": "Brume",
+  "productShort": "Brume",
+  "telemetryAppName": "Brumetry",
+  "osName": "JOS",
+  "tagline": "Portable imaging, anywhere.",
+  "licenceLine": "Apache-2.0",
+  "trademarkLine": "Brume and Brumetry are project names; no trademark registration is claimed.",
+  "logoWordmarkSvg": "branding/brume-jos-lockup.svg",
+  "logoIconPng": "branding/brume-icon.png",
+  "neutralIdentifiers": {
+    "codename": "jog",
+    "telemetryCodename": "jogemetry",
+    "osCodename": "jos",
+    "androidApplicationId": "com.jog.imaging.control",
+    "configPath": "/etc/jog",
+    "envPrefix": "JOG_"
+  }
+}
