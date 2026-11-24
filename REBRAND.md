@@ -1,5 +1,5 @@
 # MIST / WISP / MISTMETRY — REBRAND & MIGRATION SPEC
-# Formerly: JOG / JOGEMETRY
+# Formerly: MIST / MISTMETRY
 # Status: APPROVED FOR MIGRATION — DO NOT USE OLD NAMES IN NEW CODE
 # Date: 2026-11-24
 
@@ -7,16 +7,16 @@
 
 We are rebranding the entire project. The old names are DEPRECATED.
 
-- JOG (Jonathan's Opensource Ghost) -> MIST
-- JOGEMETRY (telemetry for JOG) -> WISP (agent) + MISTMETRY (dashboard/backend)
-- JOG repo -> MIST repo (keep git history, rename in place, do NOT create a new repo)
+- MIST (Mobile Imaging System Toolkit) -> MIST
+- MISTMETRY (telemetry for MIST) -> WISP (agent) + MISTMETRY (dashboard/backend)
+- MIST repo -> MIST repo (keep git history, rename in place, do NOT create a new repo)
 
-Reason: JOG sounded like a personal side-project. MIST sounds like a product,
+Reason: MIST sounded like a personal side-project. MIST sounds like a product,
 fits the FOGProject / fog metaphor, is 4 letters, sticker-friendly, and
 searchable. WISP is a tiny bit of mist = perfect for a lightweight telemetry agent.
 
 Do NOT keep "Jonathan's" in any public-facing name, title, description, or banner.
-Do NOT keep "JOG" as an alias, fallback, or easter egg in new code.
+Do NOT keep "MIST" as an alias, fallback, or easter egg in new code.
 
 ## 2. OFFICIAL NAMES & DEFINITIONS
 
@@ -41,7 +41,7 @@ Do NOT keep "JOG" as an alias, fallback, or easter egg in new code.
 - Secondary tagline: "MIST runs the imaging. WISP watches the machines."
 - Full description: "WISP is the lightweight telemetry agent for MIST. It collects
   host health, imaging status, and system telemetry and drifts it back to MISTMETRY."
-- This replaces JOGEMETRY entirely as the agent name.
+- This replaces MISTMETRY entirely as the agent name.
 
 ### MISTMETRY — Telemetry Dashboard / Backend
 - Pronounced: "mist-met-tree"
@@ -72,7 +72,7 @@ Do NOT keep "JOG" as an alias, fallback, or easter egg in new code.
     - assets/branding/wisp-splash.png
 - Banner footer must read: ubuntu + fogproject.org
     - Correct: fogproject.org
-    - Incorrect: fogproject.com — DO NOT USE .com ANYWHERE
+    - Incorrect: fogproject.org — DO NOT USE .com ANYWHERE
 
 ## 4. RENAME MAP — APPLY GLOBALLY
 
@@ -82,29 +82,29 @@ upstream code. Do NOT rename FOGProject itself. FOGProject stays FOGProject.
 
 | OLD | NEW | NOTES |
 | :--- | :--- | :--- |
-| JOG | MIST | All caps, titles, docs |
+| MIST | MIST | All caps, titles, docs |
 | Jog | Mist | Title case |
 | jog | mist | Lowercase, filenames, slugs |
-| Jonathan's Opensource Ghost | Mobile Imaging System Toolkit | Full expansion |
-| Jonathan's Open Source Ghost | Mobile Imaging System Toolkit | Variant |
-| JOGEMETRY | WISP | When referring to the AGENT |
+| Mobile Imaging System Toolkit | Mobile Imaging System Toolkit | Full expansion |
+| Mobile Imaging System Toolkit | Mobile Imaging System Toolkit | Variant |
+| MISTMETRY | WISP | When referring to the AGENT |
 | JOGemetry | Wisp | Title case agent |
-| jogemetry | wisp | Lowercase agent |
+| mistmetry | wisp | Lowercase agent |
 | jog-emetry | wisp | Hyphen variant |
-| JOGEMETRY (dashboard) | MISTMETRY | Only when referring to dashboard/backend |
-| jogemetry-dashboard | mistmetry | Dashboard variant |
-| jogemetry-server | mistmetry-server | Server variant |
-| jogemetry-api | mistmetry-api | API variant |
+| MISTMETRY (dashboard) | MISTMETRY | Only when referring to dashboard/backend |
+| mistmetry-dashboard | mistmetry | Dashboard variant |
+| mistmetry-server | mistmetry-server | Server variant |
+| mistmetry-api | mistmetry-api | API variant |
 | jog_agent | wisp_agent | Code identifiers |
 | jogAgent | wispAgent | Code identifiers |
 | JogAgent | WispAgent | Code identifiers |
 | jogTelemetry | wispTelemetry | Code identifiers |
 | jog-telemetry | wisp-telemetry | Code identifiers |
-| fogproject.com | fogproject.org | Upstream URL correction |
-| https://fogproject.com | https://fogproject.org/ | Upstream URL correction |
+| fogproject.org | fogproject.org | Upstream URL correction |
+| https://fogproject.org | https://fogproject.org/ | Upstream URL correction |
 
-### CRITICAL DISAMBIGUATION FOR JOGEMETRY
-Old code used JOGEMETRY for BOTH agent + dashboard. You MUST split it:
+### CRITICAL DISAMBIGUATION FOR MISTMETRY
+Old code used MISTMETRY for BOTH agent + dashboard. You MUST split it:
 - If the file/class/function runs ON THE CLIENT, collects metrics, sends heartbeat -> rename to WISP
 - If the file/class/function runs ON THE SERVER, stores metrics, serves dashboard/API -> rename to MISTMETRY
 - If unsure, flag it in MIGRATION_NOTES.md and default to WISP for collectors, MISTMETRY for storage.
@@ -115,11 +115,11 @@ Rename directories/files (use `git mv`):
 
 - jog/ -> mist/
 - jog-*/ -> mist-*/
-- jogemetry/ -> wisp/
-- jogemetry-dashboard/ -> mistmetry/
-- jogemetry-server/ -> mistmetry-server/
-- jogemetry-api/ -> mistmetry-api/
-- README-JOG.md -> DELETE, merge into README.md
+- mistmetry/ -> wisp/
+- mistmetry-dashboard/ -> mistmetry/
+- mistmetry-server/ -> mistmetry-server/
+- mistmetry-api/ -> mistmetry-api/
+- README-MIST.md -> DELETE, merge into README.md
 - docs/jog-* -> docs/mist-*
 - assets/jog-* -> assets/branding/mist-* or wisp-*
 
@@ -133,7 +133,7 @@ Proposed final top-level structure:
     │   ├── WISP-AGENT.md
     │   └── MISTMETRY-DASHBOARD.md
     ├── mist/                     # was jog/ — imaging system code / configs
-    ├── wisp/                     # was jogemetry/ agent — client telemetry agent
+    ├── wisp/                     # was mistmetry/ agent — client telemetry agent
     ├── mistmetry/                # dashboard + API + DB for telemetry
     ├── assets/
     │   └── branding/
@@ -148,65 +148,65 @@ Proposed final top-level structure:
 
 - systemd services:
     - jog.service -> mist.service
-    - jogemetry.service -> wisp.service
-    - jogemetry-dashboard.service -> mistmetry.service
+    - mistmetry.service -> wisp.service
+    - mistmetry-dashboard.service -> mistmetry.service
 
 - Binaries / CLI:
     - `jog` -> `mist`
     - `jog-cli` -> `mist-cli`
-    - `jogemetry` -> `wisp`
-    - `jogemetry-collect` -> `wisp-collect`
+    - `mistmetry` -> `wisp`
+    - `mistmetry-collect` -> `wisp-collect`
 
 - Python / Go / JS packages:
     - `jog` -> `mist`
-    - `jogemetry` -> `wisp` (agent) / `mistmetry` (backend)
+    - `mistmetry` -> `wisp` (agent) / `mistmetry` (backend)
     - `from jog...` -> `from mist...`
-    - `import jogemetry` -> `import wisp`
+    - `import mistmetry` -> `import wisp`
 
 - Docker:
     - `jog:latest` -> `mist:latest`
-    - `jogemetry:latest` -> `wisp:latest`
-    - `jogemetry-dashboard:latest` -> `mistmetry:latest`
-    - container names: `jog-*` -> `mist-*`, `jogemetry-*` -> `wisp-*` / `mistmetry-*`
+    - `mistmetry:latest` -> `wisp:latest`
+    - `mistmetry-dashboard:latest` -> `mistmetry:latest`
+    - container names: `jog-*` -> `mist-*`, `mistmetry-*` -> `wisp-*` / `mistmetry-*`
 
 - Env vars (keep OLD as deprecated alias for 1 release if needed, then remove):
     - JOG_* -> MIST_*
-    - JOGEMETRY_* -> WISP_* (agent) or MISTMETRY_* (dashboard)
+    - MISTMETRY_* -> WISP_* (agent) or MISTMETRY_* (dashboard)
     - JOG_HOST -> MIST_HOST
     - JOG_PORT -> MIST_PORT
-    - JOGEMETRY_ENDPOINT -> WISP_ENDPOINT
-    - JOGEMETRY_SERVER -> MISTMETRY_SERVER
+    - MISTMETRY_ENDPOINT -> WISP_ENDPOINT
+    - MISTMETRY_SERVER -> MISTMETRY_SERVER
 
 - Config files:
     - jog.conf / jog.yaml / jog.json -> mist.conf / mist.yaml / mist.json
-    - jogemetry.conf -> wisp.conf
-    - jogemetry-dashboard.conf -> mistmetry.conf
-    - Config keys: `jog:` -> `mist:`, `jogemetry:` -> `wisp:` / `mistmetry:`
+    - mistmetry.conf -> wisp.conf
+    - mistmetry-dashboard.conf -> mistmetry.conf
+    - Config keys: `jog:` -> `mist:`, `mistmetry:` -> `wisp:` / `mistmetry:`
 
 - DB:
     - Database `jog` -> `mist`
-    - Database `jogemetry` -> `mistmetry`
+    - Database `mistmetry` -> `mistmetry`
     - Tables `jog_*` -> `mist_*`
-    - Tables `jogemetry_*` -> `wisp_*` (raw agent events) or `mistmetry_*` (aggregated)
+    - Tables `mistmetry_*` -> `wisp_*` (raw agent events) or `mistmetry_*` (aggregated)
 
 - API routes:
     - /api/jog/* -> /api/mist/*
-    - /api/jogemetry/* -> /api/wisp/* (agent ingest) OR /api/mistmetry/* (dashboard queries)
-    - Keep a 301 / deprecation shim for /api/jogemetry/* -> /api/wisp/* for one release, log warning.
+    - /api/mistmetry/* -> /api/wisp/* (agent ingest) OR /api/mistmetry/* (dashboard queries)
+    - Keep a 301 / deprecation shim for /api/mistmetry/* -> /api/wisp/* for one release, log warning.
 
 - Hostnames / mDNS:
     - jog.local -> mist.local
-    - jogemetry.local -> wisp.local (agent) / mistmetry.local (dashboard)
+    - mistmetry.local -> wisp.local (agent) / mistmetry.local (dashboard)
 
 ## 7. DOCS / UI / STRINGS TO UPDATE
 
 Update in ALL user-facing strings:
 - README.md title: "# MIST — Mobile Imaging System Toolkit"
 - README.md subtitle: "Imaging, anywhere. Ubuntu + FOGProject, in your bag."
-- README.md must link FOGProject as https://fogproject.org/ — never fogproject.com
+- README.md must link FOGProject as https://fogproject.org/ — never fogproject.org
 - Splash screens: MIST splash + WISP splash (see assets/branding/)
 - App titles, window titles, CLI --help, --version, man pages
-- PXE boot menu: "MIST — Boot to Imaging" (was JOG)
+- PXE boot menu: "MIST — Boot to Imaging" (was MIST)
 - Web UI header: "MIST" + subhead "MISTMETRY" for telemetry pages
 - About dialog: Must list MIST, WISP, MISTMETRY with versions
 - Footer: "MIST • WISP • MISTMETRY — Open Source"
@@ -219,25 +219,25 @@ Do NOT update:
 ## 8. MIGRATION STEPS FOR OPENCODE — DO IN ORDER
 
 1. Create branch: `git checkout -b rebrand/mist-wisp-mistmetry`
-2. Run global search for: JOG, Jog, jog, JOGEMETRY, jogemetry, Jonathan's Opensource Ghost, fogproject.com
+2. Run global search for: MIST, Jog, jog, MISTMETRY, mistmetry, Mobile Imaging System Toolkit, fogproject.org
    Save results to MIGRATION_NOTES.md before changing anything.
 3. Apply rename map in Section 4 + file renames in Section 5 using `git mv`.
-4. Split JOGEMETRY -> WISP vs MISTMETRY per Section 4 disambiguation. List every ambiguous file in MIGRATION_NOTES.md.
+4. Split MISTMETRY -> WISP vs MISTMETRY per Section 4 disambiguation. List every ambiguous file in MIGRATION_NOTES.md.
 5. Update env vars, configs, systemd units, Dockerfiles, docker-compose.yml, API routes.
 6. Update README.md, docs/, splash screens, banners, icons, PXE menu, CLI help.
-7. Fix all upstream links: fogproject.com -> fogproject.org
+7. Fix all upstream links: fogproject.org -> fogproject.org
 8. Add deprecation shims: old CLI `jog` -> prints "jog is now mist, use mist" + forwards. Old env vars log deprecation warning once. Keep for 1 release only.
 9. Run: lint, unit tests, build, boot test in VM. Fix all broken imports / references.
 10. Update .github/workflows, CI badges, links, repo description to MIST.
-11. Create MIGRATION.md with: What changed, old -> new table, how to upgrade from JOG to MIST, breaking changes.
-12. Commit with message: `feat!: rebrand JOG -> MIST, JOGEMETRY -> WISP / MISTMETRY`
+11. Create MIGRATION.md with: What changed, old -> new table, how to upgrade from MIST to MIST, breaking changes.
+12. Commit with message: `feat!: rebrand MIST -> MIST, MISTMETRY -> WISP / MISTMETRY`
 13. Open PR, request review, do NOT merge until PXE boot + WISP heartbeat to MISTMETRY verified.
 
 ## 9. VERIFICATION CHECKLIST
 
-- [ ] No `JOG` remains in code/docs/UI except in MIGRATION.md / MIGRATION_NOTES.md historical note + deprecation shims
-- [ ] No `JOGEMETRY` remains except in migration docs + shims
-- [ ] No `fogproject.com` remains anywhere — only `fogproject.org`
+- [ ] No `MIST` remains in code/docs/UI except in MIGRATION.md / MIGRATION_NOTES.md historical note + deprecation shims
+- [ ] No `MISTMETRY` remains except in migration docs + shims
+- [ ] No `fogproject.org` remains anywhere — only `fogproject.org`
 - [ ] `mist --help` works, `wisp --help` works
 - [ ] `mist.service` starts, `wisp.service` starts, `mistmetry.service` starts
 - [ ] PXE boot menu shows MIST
@@ -249,4 +249,4 @@ Do NOT update:
 
 ## 10. WHAT TO SAY IF USERS ASK
 
-> JOG is now MIST. Same tool, better name. JOGEMETRY is now WISP (agent) + MISTMETRY (dashboard). Update your commands from `jog` to `mist` and `jogemetry` to `wisp`. Powered by FOGProject — https://fogproject.org/
+> MIST is now MIST. Same tool, better name. MISTMETRY is now WISP (agent) + MISTMETRY (dashboard). Update your commands from `jog` to `mist` and `mistmetry` to `wisp`. Powered by FOGProject — https://fogproject.org/

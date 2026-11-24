@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="MIST + JOS — corporate reimaging, free and open">
+  <rect width="900" height="220" rx="28" fill="#0B1220"/>
+  <rect x="1" y="1" width="898" height="218" rx="27" fill="none" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- mark: portable appliance + multicast waves -->
+  <rect x="52" y="70" width="132" height="82" rx="10" fill="none" stroke="#22D3EE" stroke-width="4"/>
+  <rect x="68" y="86" width="100" height="50" rx="4" fill="#22D3EE" opacity="0.10"/>
+  <path d="M52 152h132" stroke="#22D3EE" stroke-width="4" stroke-linecap="round"/>
+  <path d="M196 82c20 18 20 40 0 58" fill="none" stroke="#22D3EE" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  <path d="M216 66c32 30 32 72 0 102" fill="none" stroke="#22D3EE" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+  <path d="M236 50c44 42 44 104 0 146" fill="none" stroke="#22D3EE" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
+
+  <!-- wordmark -->
+  <text x="300" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" fill="#22D3EE" letter-spacing="2">MIST</text>
+  <text x="432" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="300" fill="#64748B">+</text>
+  <text x="490" y="112" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700" fill="#F8FAFC" letter-spacing="2">JOS</text>
+
+  <text x="302" y="148" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#94A3B8" letter-spacing="3">JONATHAN'S OPENSOURCE GHOST  +  JONATHAN'S OS</text>
+  <line x1="302" y1="164" x2="844" y2="164" stroke="#1E293B" stroke-width="2"/>
+  <text x="302" y="190" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#22D3EE" letter-spacing="2">CORPORATE REIMAGING, FREE AND OPEN</text>
+  <text x="844" y="190" text-anchor="end" font-family="'DejaVu Sans Mono', 'Consolas', monospace" font-size="12" fill="#64748B">v2026.11</text>
+</svg>
